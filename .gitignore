@@ -1,0 +1,42 @@
+# ===== Java / Maven / Spring Boot =====
+/target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+
+# ===== Spring Boot specific =====
+/bin/
+/build/
+/out/
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ===== VS Code =====
+.vscode/
+
+# ===== Mac OS / Linux / Windows =====
+.DS_Store
+Thumbs.db
+
+# ===== Eclipse =====
+.project
+.classpath
+.settings/
+
+# ===== Maven Wrapper =====
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== Environment / Secrets =====
+.env
+*.env
+*.properties
+
+# ===== Logs =====
+*.log
