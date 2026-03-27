@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: applygenie-ai
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/applygenie?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+app:
+  jwt:
+    secret: C8A9E3FA4B7CDE1219F58BE46A8F12D3A9C8D6B71E42B1A89BFFC32D9A9B2CF0
+    expiration-ms: 86400000
+
+server:
+  port: 8080
