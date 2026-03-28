@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sparkles, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import api from "../services/api";
 
 export function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -10,10 +12,25 @@ export function RegisterPage() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register attempt", formData);
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.post("/auth/register", formData);
+      const { user, accessToken, refreshToken } = response.data.data;
+      setAuth(user, accessToken, refreshToken);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,7 +88,15 @@ export function RegisterPage() {
               </ul>
             </div>
 
-            <Button type="submit" className="w-full mt-4">Create Account</Button>
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full mt-4" disabled={loading}>
+              {loading ? "Creating account..." : "Create Account"}
+            </Button>
           </form>
           
           <p className="mt-6 text-center text-xs text-gray-400">
