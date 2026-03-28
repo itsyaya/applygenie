@@ -7,7 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "resumes")
+@Table(name = "resumes", indexes = {
+    @Index(name = "idx_resume_user", columnList = "user_id"),
+    @Index(name = "idx_resume_created", columnList = "createdAt")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,9 +30,9 @@ public class Resume {
     private String fileName;
 
     @Column(nullable = false)
-    private String filePath;
+    private String s3Key;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String parsedText;
 
     @CreationTimestamp
