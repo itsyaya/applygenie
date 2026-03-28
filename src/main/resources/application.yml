@@ -1,36 +1,74 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: applygenie-ai
 
-  datasource:
-    url: jdbc:h2:mem:applygenie;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
 
 app:
   jwt:
-    secret: C8A9E3FA4B7CDE1219F58BE46A8F12D3A9C8D6B71E42B1A89BFFC32D9A9B2CF0
-    expiration-ms: 86400000
+    secret: ${JWT_SECRET:C8A9E3FA4B7CDE1219F58BE46A8F12D3A9C8D6B71E42B1A89BFFC32D9A9B2CF0}
+    access-expiration-ms: 900000 # 15 minutes
+    refresh-expiration-ms: 604800000 # 7 days
 
 server:
-  port: 8080
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  retry:
+    instances:
+      openai:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      s3:
+        max-attempts: 3
+        wait-duration: 1s
+
+  circuitbreaker:
+    instances:
+      openai:
+        register-health-indicator: true
+        sliding-window-size: 10
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 50s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY:sk_test_placeholder}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+  price:
+    pro: ${STRIPE_PRICE_PRO_ID:price_placeholder}
+
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY:placeholder}
+    secret-key: ${AWS_SECRET_KEY:placeholder}
+    region: ${AWS_REGION:us-east-1}
+    bucket: ${AWS_S3_BUCKET:applygenie-resumes}
+
+openai:
+  api-key: ${OPENAI_API_KEY:placeholder}
