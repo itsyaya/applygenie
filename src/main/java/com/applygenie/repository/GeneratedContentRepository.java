@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface GeneratedContentRepository extends JpaRepository<GeneratedContent, Long> {
     List<GeneratedContent> findByUserId(Long userId);
+    long countByUserId(Long userId);
 }

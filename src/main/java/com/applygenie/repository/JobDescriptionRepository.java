@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface JobDescriptionRepository extends JpaRepository<JobDescription, Long> {
-    List<JobDescription> findByUserId(Long userId);
+    org.springframework.data.domain.Page<JobDescription> findByUserId(Long userId, org.springframework.data.domain.Pageable pageable);
 }
