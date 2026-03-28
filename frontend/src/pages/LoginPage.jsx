@@ -1,17 +1,33 @@
 import React, { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sparkles, ArrowLeft } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import api from "../services/api";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt", { email, password });
-    // TODO: Connect to Auth API
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.post("/auth/login", { email, password });
+      const { user, accessToken, refreshToken } = response.data.data;
+      setAuth(user, accessToken, refreshToken);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,7 +77,15 @@ export function LoginPage() {
               <a href="#" className="font-medium text-primary-600 hover:text-primary-500">Forgot password?</a>
             </div>
 
-            <Button type="submit" className="w-full">Sign In</Button>
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
           </form>
         </div>
         
