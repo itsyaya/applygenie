@@ -7,9 +7,13 @@ import com.applygenie.repository.JobDescriptionRepository;
 import com.applygenie.repository.UserRepository;
 import com.applygenie.security.CustomUserDetails;
 import com.applygenie.service.JobService;
+import com.applygenie.service.AIService;
+import com.applygenie.repository.ResumeRepository;
+import com.applygenie.entity.Resume;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,23 +24,34 @@ public class JobServiceImpl implements JobService {
     private final JobDescriptionRepository jobDescriptionRepository;
     private final UserRepository userRepository;
 
+    private final AIService aiService;
+    private final ResumeRepository resumeRepository;
+
     @Override
     public JobDescription createJobDescription(JobDescriptionRequest request) {
         User currentUser = getCurrentUser();
-
-        JobDescription jobDescription = JobDescription.builder()
+        JobDescription job = JobDescription.builder()
                 .user(currentUser)
-                .companyName(request.getCompanyName())
-                .jobTitle(request.getJobTitle())
-                .descriptionText(request.getDescriptionText())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .company(request.getCompany())
                 .build();
-
-        return jobDescriptionRepository.save(jobDescription);
+        return jobDescriptionRepository.save(job);
     }
 
     @Override
-    public List<JobDescription> getUserJobs() {
-        return jobDescriptionRepository.findByUserId(getCurrentUser().getId());
+    public String matchResumeWithJob(Long resumeId, Long jobId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+        JobDescription job = jobDescriptionRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        return aiService.analyzeResume(resume.getParsedText(), job.getDescription());
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<JobDescription> getUserJobs(org.springframework.data.domain.Pageable pageable) {
+        return jobDescriptionRepository.findByUserId(getCurrentUser().getId(), pageable);
     }
 
     private User getCurrentUser() {
