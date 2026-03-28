@@ -5,38 +5,50 @@
 *.war
 *.ear
 *.iml
-*.log
 
-# ===== Spring Boot specific =====
-/bin/
-/build/
-/out/
+# ===== Spring Boot Secrets & Config =====
+application-local.yml
+application-prod.yml
+application-secret.*
+*.properties
+!src/main/resources/application.properties
 
-# ===== IntelliJ IDEA =====
+# ===== Frontend (Monorepo) =====
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.env*
+frontend/*.local
+
+# ===== Secrets / Keys / Environment =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pub
+*.jks
+*.p12
+
+# ===== IDEs & Editors =====
 .idea/
 *.iws
-*.iml
 *.ipr
-
-# ===== VS Code =====
 .vscode/
-
-# ===== Mac OS / Linux / Windows =====
-.DS_Store
-Thumbs.db
-
-# ===== Eclipse =====
 .project
 .classpath
 .settings/
-
-# ===== Maven Wrapper =====
-.mvn/wrapper/maven-wrapper.jar
-
-# ===== Environment / Secrets =====
-.env
-*.env
-*.properties
+*.swp
+*.swo
 
 # ===== Logs =====
 *.log
+logs/
+
+# ===== OS Specific =====
+.DS_Store
+Thumbs.db
+[Nn]ode_modules/
+[Bb]in/
+[Bb]uild/
+[Oo]ut/
