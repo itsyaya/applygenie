@@ -37,6 +37,10 @@ public class GeneratedContent {
     @Column(columnDefinition = "LONGTEXT")
     private String cvSummary;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private GenerationStatus status;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
