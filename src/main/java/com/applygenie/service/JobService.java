@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface JobService {
     JobDescription createJobDescription(JobDescriptionRequest request);
-    List<JobDescription> getUserJobs();
+    org.springframework.data.domain.Page<JobDescription> getUserJobs(org.springframework.data.domain.Pageable pageable);
+    String matchResumeWithJob(Long resumeId, Long jobId);
 }
