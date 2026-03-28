@@ -47,9 +47,9 @@ src/main/java/com/applygenie
 ### Prerequisites
 
 Ensure you have the following installed on your local machine:
-- [Java Development Kit (JDK) 17+](https://adoptium.net/)
+- [Java Development Kit (JDK) 22](https://adoptium.net/) (Strictly required for build stability/Lombok)
 - [Apache Maven](https://maven.apache.org/) (or use the included Maven wrapper)
-- [MySQL Server](https://dev.mysql.com/downloads/mysql/) (v8.0+)
+- [PostgreSQL Server](https://www.postgresql.org/) (Production choice)
 - Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code)
 
 ### 1. Database Setup

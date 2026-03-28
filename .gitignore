@@ -52,3 +52,6 @@ Thumbs.db
 [Bb]in/
 [Bb]uild/
 [Oo]ut/
+
+# ===== Documentation Backups =====
+readme27.md
