@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private final com.applygenie.security.JwtUtils jwtUtils;
+    private final com.applygenie.service.RefreshTokenService refreshTokenService;
     private final AuthService authService;
 
     @PostMapping("/register")
@@ -29,5 +31,30 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<com.applygenie.dto.response.TokenRefreshResponse>> refreshToken(
+            @Valid @RequestBody com.applygenie.dto.request.TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(com.applygenie.entity.RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateToken(new com.applygenie.security.CustomUserDetails(user));
+                    return ResponseEntity.ok(new ApiResponse<>(true, "Token refreshed successfully",
+                            com.applygenie.dto.response.TokenRefreshResponse.builder()
+                                    .accessToken(token)
+                                    .refreshToken(requestRefreshToken)
+                                    .build()));
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logoutUser(@RequestParam Long userId) {
+        refreshTokenService.deleteByUserId(userId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Log out successful", null));
     }
 }

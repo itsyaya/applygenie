@@ -27,8 +27,16 @@ public class JobController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<ApiResponse<List<JobDescription>>> getUserJobs() {
-        List<JobDescription> jobs = jobService.getUserJobs();
+    public ResponseEntity<ApiResponse<org.springframework.data.domain.Page<JobDescription>>> getUserJobs(
+            @org.springframework.data.web.PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) 
+            org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.domain.Page<JobDescription> jobs = jobService.getUserJobs(pageable);
         return ResponseEntity.ok(new ApiResponse<>(true, "User jobs fetched", jobs));
+    }
+
+    @PostMapping("/{jobId}/match/{resumeId}")
+    public ResponseEntity<ApiResponse<String>> matchResume(@PathVariable Long jobId, @PathVariable Long resumeId) {
+        String analysis = jobService.matchResumeWithJob(resumeId, jobId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "AI Matching completed", analysis));
     }
 }
