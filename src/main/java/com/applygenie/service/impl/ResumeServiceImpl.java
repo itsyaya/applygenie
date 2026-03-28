@@ -5,19 +5,17 @@ import com.applygenie.entity.User;
 import com.applygenie.repository.ResumeRepository;
 import com.applygenie.repository.UserRepository;
 import com.applygenie.security.CustomUserDetails;
+import com.applygenie.service.ResumeParserService;
 import com.applygenie.service.ResumeService;
+import com.applygenie.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,48 +23,39 @@ public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
-
-    private final String UPLOAD_DIR = "uploads/resumes/";
+    private final StorageService storageService;
+    private final ResumeParserService resumeParserService;
 
     @Override
+    @Transactional
     public Resume uploadResume(MultipartFile file) {
-        User currentUser = getCurrentUser();
-
+        String originalFilename = file.getOriginalFilename();
         try {
-            File uploadDir = new File(UPLOAD_DIR);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
+            // 1. Upload to S3
+            String s3Key = storageService.uploadFile(file);
 
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".") 
-                    ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
-                    : ".pdf";
-            String newFilename = UUID.randomUUID() + extension;
-            Path filePath = Paths.get(UPLOAD_DIR + newFilename);
+            // 2. Parse text with Tika
+            String parsedText = resumeParserService.parseResume(file);
 
-            Files.write(filePath, file.getBytes());
-
-            // Mock PDF Parsing
-            String mockParsedText = "Parsed content for: " + originalFilename;
-
+            // 3. Save to DB
+            User currentUser = getCurrentUser();
             Resume resume = Resume.builder()
                     .user(currentUser)
                     .fileName(originalFilename)
-                    .filePath(filePath.toString())
-                    .parsedText(mockParsedText)
+                    .s3Key(s3Key)
+                    .parsedText(parsedText)
                     .build();
 
             return resumeRepository.save(resume);
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store resume file", e);
+            throw new RuntimeException("Failed to process resume upload: " + originalFilename, e);
         }
     }
 
     @Override
-    public List<Resume> getUserResumes() {
-        return resumeRepository.findByUserId(getCurrentUser().getId());
+    public org.springframework.data.domain.Page<Resume> getUserResumes(org.springframework.data.domain.Pageable pageable) {
+        return resumeRepository.findByUserId(getCurrentUser().getId(), pageable);
     }
 
     private User getCurrentUser() {
