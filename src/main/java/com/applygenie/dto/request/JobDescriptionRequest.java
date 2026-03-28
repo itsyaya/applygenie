@@ -5,12 +5,11 @@ import lombok.Data;
 
 @Data
 public class JobDescriptionRequest {
-    @NotBlank(message = "Company name is required")
-    private String companyName;
+    @NotBlank(message = "Title is required")
+    private String title;
 
-    @NotBlank(message = "Job title is required")
-    private String jobTitle;
+    @NotBlank(message = "Description is required")
+    private String description;
 
-    @NotBlank(message = "Description text is required")
-    private String descriptionText;
+    private String company;
 }

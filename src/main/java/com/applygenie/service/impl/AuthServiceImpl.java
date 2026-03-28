@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.applygenie.service.RefreshTokenService;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -45,14 +47,17 @@ public class AuthServiceImpl implements AuthService {
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
         String jwt = jwtUtils.generateToken(userDetails);
+        com.applygenie.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
         return AuthResponse.builder()
                 .token(jwt)
+                .refreshToken(refreshToken.getToken())
                 .email(user.getEmail())
                 .build();
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -61,9 +66,14 @@ public class AuthServiceImpl implements AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String jwt = jwtUtils.generateToken(userDetails);
+        
+        // Ensure only one active refresh token exists per user (or rotate if existing)
+        refreshTokenService.deleteByUserId(userDetails.getUser().getId());
+        com.applygenie.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
 
         return AuthResponse.builder()
                 .token(jwt)
+                .refreshToken(refreshToken.getToken())
                 .email(userDetails.getUsername())
                 .build();
     }

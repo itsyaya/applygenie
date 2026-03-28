@@ -7,7 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "job_descriptions")
+@Table(name = "job_descriptions", indexes = {
+    @Index(name = "idx_job_user", columnList = "user_id"),
+    @Index(name = "idx_job_created", columnList = "createdAt")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,13 +27,13 @@ public class JobDescription {
     private User user;
 
     @Column(nullable = false)
-    private String companyName;
+    private String company;
 
     @Column(nullable = false)
-    private String jobTitle;
+    private String title;
 
-    @Column(columnDefinition = "LONGTEXT", nullable = false)
-    private String descriptionText;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String description;
 
     @CreationTimestamp
     @Column(updatable = false)

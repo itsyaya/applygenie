@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ResumeService {
     Resume uploadResume(MultipartFile file);
-    List<Resume> getUserResumes();
+    org.springframework.data.domain.Page<Resume> getUserResumes(org.springframework.data.domain.Pageable pageable);
 }

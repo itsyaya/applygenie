@@ -25,10 +25,17 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ResumeRepository resumeRepository;
     private final JobDescriptionRepository jobDescriptionRepository;
     private final UserRepository userRepository;
+    private final com.applygenie.service.UsageService usageService;
+    private final com.applygenie.service.AiWorkerService aiWorkerService;
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public GeneratedContent generateContent(GenerationRequest request) {
         User currentUser = getCurrentUser();
+
+        if (!usageService.canGenerate(currentUser)) {
+            throw new RuntimeException("AI generation limit reached for your plan. Please upgrade to Pro.");
+        }
 
         Resume resume = resumeRepository.findById(request.getResumeId())
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
@@ -41,22 +48,20 @@ public class AiGenerationServiceImpl implements AiGenerationService {
             throw new RuntimeException("Unauthorized to access these resources");
         }
 
-        // Mock AI Generation call here - ideally you'd use a RestTemplate/WebClient to call OpenAI API
-        String generatedCoverLetter = "Dear Hiring Manager at " + jobDescription.getCompanyName() + "...\n\n" +
-                "I am writing to apply for the " + jobDescription.getJobTitle() + " role.\n" +
-                "Based on my resume (" + resume.getFileName() + "), I am a great fit for your organization.";
-
-        String generatedCvSummary = "A tailored CV summary highlighting alignment with " + jobDescription.getJobTitle() + " at " + jobDescription.getCompanyName() + ".";
-
+        // 1. Create PENDING content record
         GeneratedContent content = GeneratedContent.builder()
                 .user(currentUser)
                 .resume(resume)
                 .jobDescription(jobDescription)
-                .coverLetter(generatedCoverLetter)
-                .cvSummary(generatedCvSummary)
+                .status(com.applygenie.entity.GenerationStatus.PENDING)
                 .build();
 
-        return generatedContentRepository.save(content);
+        GeneratedContent savedContent = generatedContentRepository.save(content);
+
+        // 2. Trigger async AI processing
+        aiWorkerService.processAIGeneration(savedContent, resume.getParsedText(), jobDescription.getDescription());
+
+        return savedContent;
     }
 
     @Override

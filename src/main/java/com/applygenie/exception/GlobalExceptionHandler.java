@@ -1,9 +1,8 @@
 package com.applygenie.exception;
 
+import com.applygenie.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,42 +16,45 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication fails or invalid credentials.");
-    }
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message("Validation failed")
+                .timestamp(LocalDateTime.now())
+                .errors(errors)
+                .build();
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access is denied.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleRuntimeExceptions(RuntimeException ex) {
+        io.sentry.Sentry.captureException(ex);
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
-    }
-
-    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
+    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        io.sentry.Sentry.captureException(ex);
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(status.value())
-                .message(message)
+                .success(false)
+                .message("An unexpected error occurred")
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(status).body(errorResponse);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

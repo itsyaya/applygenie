@@ -29,6 +29,16 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(unique = true)
+    private String stripeCustomerId;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private SubscriptionTier subscriptionTier = SubscriptionTier.FREE;
+
+    @Builder.Default
+    private boolean subscriptionActive = false;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

@@ -24,8 +24,10 @@ public class ResumeController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<ApiResponse<List<Resume>>> getUserResumes() {
-        List<Resume> resumes = resumeService.getUserResumes();
+    public ResponseEntity<ApiResponse<org.springframework.data.domain.Page<Resume>>> getUserResumes(
+            @org.springframework.data.web.PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) 
+            org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.domain.Page<Resume> resumes = resumeService.getUserResumes(pageable);
         return ResponseEntity.ok(new ApiResponse<>(true, "User resumes fetched", resumes));
     }
 }
