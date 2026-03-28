@@ -1,43 +1,59 @@
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost:8080";
+import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:8080',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-// Add Interceptor for JWT
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request Interceptor: Add Access Token
+api.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response Interceptor: Handle Token Refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = useAuthStore.getState().refreshToken;
+
+      if (refreshToken) {
+        try {
+          const response = await axios.post('http://localhost:8080/auth/refresh-token', {
+            refreshToken,
+          });
+
+          const { accessToken, refreshToken: newRefreshToken } = response.data;
+          useAuthStore.getState().setAuth(
+            useAuthStore.getState().user,
+            accessToken,
+            newRefreshToken
+          );
+
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          useAuthStore.getState().logout();
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+
+    return Promise.reject(error);
   }
-  return config;
-});
-
-export const authService = {
-  login: (email, password) => api.post("/auth/login", { email, password }),
-  register: (data) => api.post("/auth/register", data),
-};
-
-export const resumeService = {
-  upload: (formData) => api.post("/resumes/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" }
-  }),
-  getAll: () => api.get("/resumes/user"),
-};
-
-export const jobService = {
-  create: (data) => api.post("/jobs", data),
-  getAll: () => api.get("/jobs/user"),
-};
-
-export const aiService = {
-  generate: (resumeId, jobId) => api.post("/generate", { resumeId, jobId }),
-  getHistory: () => api.get("/generate/user"),
-};
+);
 
 export default api;
