@@ -33,6 +33,9 @@ public class StripeServiceImpl implements StripeService {
     @Value("${stripe.webhook.secret}")
     private String webhookSecret;
 
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     @PostConstruct
     public void init() {
         Stripe.apiKey = stripeApiKey;
@@ -42,8 +45,8 @@ public class StripeServiceImpl implements StripeService {
     public Session createCheckoutSession(User user, String priceId) throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-                .setSuccessUrl("http://localhost:5173/dashboard?status=success")
-                .setCancelUrl("http://localhost:5173/dashboard?status=cancel")
+                .setSuccessUrl(frontendUrl + "/dashboard?status=success")
+                .setCancelUrl(frontendUrl + "/dashboard?status=cancel")
                 .setCustomerEmail(user.getEmail())
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setPrice(priceId)
@@ -58,7 +61,7 @@ public class StripeServiceImpl implements StripeService {
     @Override
     public void handleWebhook(String payload, String sigHeader) throws Exception {
         Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
-        
+
         log.info("Received Stripe Webhook event: {}", event.getType());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();

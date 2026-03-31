@@ -22,8 +22,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         // Use IP address as key for rate limiting
-        String clientIp = request.getRemoteAddr();
-        
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        String clientIp = (xForwardedFor != null && !xForwardedFor.isBlank()) ? xForwardedFor.split(",")[0].trim()
+                : request.getRemoteAddr();
+
         if (rateLimitingService.resolveBucket(clientIp).tryConsume(1)) {
             filterChain.doFilter(request, response);
         } else {

@@ -24,7 +24,7 @@ public class OpenAIServiceImpl implements AIService {
     @Value("${openai.api-key}")
     private String apiKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
     @Override
@@ -33,16 +33,17 @@ public class OpenAIServiceImpl implements AIService {
     public String analyzeResume(String resumeText, String jobDescription) {
         String prompt = String.format(
                 "Analyze this resume based on the following job description. " +
-                "Provide a match score (0-100) and 3 key reasons why this candidate is a good/bad fit.\n\n" +
-                "Resume:\n%s\n\nJob Description:\n%s", 
+                        "Provide a match score (0-100) and 3 key reasons why this candidate is a good/bad fit.\n\n" +
+                        "Resume:\n%s\n\nJob Description:\n%s",
                 resumeText, jobDescription);
-        
+
         return callOpenAI(prompt);
     }
 
     @Override
     public String suggestImprovements(String resumeText) {
-        String prompt = "Suggest 5 specific professional improvements for the following resume to make it more impactful for a senior software engineering role:\n\n" + resumeText;
+        String prompt = "Suggest 5 specific professional improvements for the following resume to make it more impactful for a senior software engineering role:\n\n"
+                + resumeText;
         return callOpenAI(prompt);
     }
 
@@ -55,18 +56,17 @@ public class OpenAIServiceImpl implements AIService {
         body.put("model", "gpt-4o");
         body.put("messages", List.of(
                 Map.of("role", "system", "content", "You are an expert HR and Career Coach."),
-                Map.of("role", "user", "content", prompt)
-        ));
+                Map.of("role", "user", "content", prompt)));
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        
+
         try {
             Map<String, Object> response = restTemplate.postForObject(OPENAI_URL, request, Map.class);
             List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
             Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
             return (String) message.get("content");
         } catch (Exception e) {
-            return "Error calling OpenAI: " + e.getMessage();
+            throw new RuntimeException("Failed to communicate with OpenAI API", e);
         }
     }
 
