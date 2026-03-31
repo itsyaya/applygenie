@@ -7,6 +7,12 @@
 
 ApplyGenie AI Backend is a production-level, scalable backend system for an AI-powered job application assistant. Built with Java 17 and Spring Boot, it provides secure authentication, resume and job description management, and lays the groundwork for seamless AI integrations to generate tailored career content.
 
+| Landing Page | Dashboard |
+| :---: | :---: |
+| ![Landing Page](./assets/landing.png) | ![Dashboard](./assets/dashboard.png) |
+| **Login** | **Register** |
+| ![Login](./assets/login.png) | ![Register](./assets/register.png) |
+
 ## ✨ Features
 
 - **Secure Authentication & Authorization**: Stateless JWT (JSON Web Token) authentication paired with Spring Security.
