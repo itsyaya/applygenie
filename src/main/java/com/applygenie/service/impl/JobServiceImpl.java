@@ -50,12 +50,16 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public org.springframework.data.domain.Page<JobDescription> getUserJobs(org.springframework.data.domain.Pageable pageable) {
+    public org.springframework.data.domain.Page<JobDescription> getUserJobs(
+            org.springframework.data.domain.Pageable pageable) {
         return jobDescriptionRepository.findByUserId(getCurrentUser().getId(), pageable);
     }
 
     private User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new RuntimeException("Unauthorized: Principal is not a valid user");
+        }
         String username = ((CustomUserDetails) principal).getUsername();
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));

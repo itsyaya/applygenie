@@ -5,6 +5,8 @@ import com.applygenie.entity.GeneratedContent;
 import com.applygenie.entity.JobDescription;
 import com.applygenie.entity.Resume;
 import com.applygenie.entity.User;
+import com.applygenie.exception.custom.ResourceNotFoundException;
+import com.applygenie.exception.custom.UnauthorizedAccessException;
 import com.applygenie.repository.GeneratedContentRepository;
 import com.applygenie.repository.JobDescriptionRepository;
 import com.applygenie.repository.ResumeRepository;
@@ -34,18 +36,18 @@ public class AiGenerationServiceImpl implements AiGenerationService {
         User currentUser = getCurrentUser();
 
         if (!usageService.canGenerate(currentUser)) {
-            throw new RuntimeException("AI generation limit reached for your plan. Please upgrade to Pro.");
+            throw new IllegalStateException("AI generation limit reached for your plan. Please upgrade to Pro.");
         }
 
         Resume resume = resumeRepository.findById(request.getResumeId())
-                .orElseThrow(() -> new RuntimeException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
         JobDescription jobDescription = jobDescriptionRepository.findById(request.getJobId())
-                .orElseThrow(() -> new RuntimeException("Job Description not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job Description not found"));
 
         if (!resume.getUser().getId().equals(currentUser.getId()) ||
-            !jobDescription.getUser().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("Unauthorized to access these resources");
+                !jobDescription.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("Unauthorized to access these resources");
         }
 
         // 1. Create PENDING content record
