@@ -1,3 +1,7 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import { Sparkles } from "lucide-react";
+import { Button } from "./ui/Button";
 import { useAuthStore } from "../store/authStore";
 
 export function Navbar() {
