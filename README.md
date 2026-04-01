@@ -112,7 +112,3 @@ The project is equipped with `spring-boot-starter-test` and `spring-security-tes
 - Dockerization for containerized deployment.
 - CI/CD pipeline setup (GitHub Actions).
 - API Documentation via Swagger/OpenAPI.
-
-## 📄 License
-
-This project is proprietary and confidential. Unauthorized copying or distribution of this software is strictly prohibited.
