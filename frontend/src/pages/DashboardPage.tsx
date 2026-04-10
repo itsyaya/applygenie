@@ -6,14 +6,13 @@ import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
-import { EmptyState, LoadingState, ErrorState, Skeleton } from '@/components/ui/States';
+import { EmptyState, Skeleton } from '@/components/ui/States';
 import { showToast } from '@/components/ui/Toast';
 import { resumeService } from '@/services/resumeService';
 import { jobService } from '@/services/jobService';
 import { dashboardService } from '@/services/dashboardService';
 import { useAsync } from '@/hooks/useAsync';
-import { formatDate, truncateText, formatFileSize } from '@/utils';
-import type { Resume, Job } from '@/types';
+import { formatDate, truncateText } from '@/utils';
 
 interface StatCard {
   icon: React.ReactNode;
@@ -51,7 +50,6 @@ export const DashboardPage = () => {
   const {
     data: stats,
     loading: statsLoading,
-    error: statsError,
   } = useAsync(
     async () => {
       try {
