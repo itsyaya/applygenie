@@ -9,6 +9,19 @@ class ApiClient {
   private isRefreshing = false;
   private failedQueue: Array<(token: string) => void> = [];
 
+  private unwrapResponse<T>(payload: ApiResponse<T> | T): T {
+    if (
+      payload &&
+      typeof payload === 'object' &&
+      'data' in (payload as ApiResponse<T>) &&
+      'success' in (payload as ApiResponse<T>)
+    ) {
+      return (payload as ApiResponse<T>).data;
+    }
+
+    return payload as T;
+  }
+
   constructor() {
     this.client = axios.create({
       baseURL: API_BASE_URL,
@@ -63,7 +76,10 @@ class ApiClient {
               { refreshToken }
             );
 
-            const { accessToken } = response.data;
+            const accessToken = response.data.accessToken || response.data.token;
+            if (!accessToken) {
+              throw new Error('No access token returned from refresh');
+            }
             useAuthStore.getState().setAccessToken(accessToken);
 
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -92,28 +108,28 @@ class ApiClient {
   }
 
   async get<T>(url: string, config = {}): Promise<T> {
-    const response = await this.client.get<ApiResponse<T>>(url, config);
-    return response.data.data;
+    const response = await this.client.get<ApiResponse<T> | T>(url, config);
+    return this.unwrapResponse(response.data);
   }
 
   async post<T>(url: string, data?: unknown, config = {}): Promise<T> {
-    const response = await this.client.post<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    const response = await this.client.post<ApiResponse<T> | T>(url, data, config);
+    return this.unwrapResponse(response.data);
   }
 
   async put<T>(url: string, data?: unknown, config = {}): Promise<T> {
-    const response = await this.client.put<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    const response = await this.client.put<ApiResponse<T> | T>(url, data, config);
+    return this.unwrapResponse(response.data);
   }
 
   async patch<T>(url: string, data?: unknown, config = {}): Promise<T> {
-    const response = await this.client.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    const response = await this.client.patch<ApiResponse<T> | T>(url, data, config);
+    return this.unwrapResponse(response.data);
   }
 
   async delete<T>(url: string, config = {}): Promise<T> {
-    const response = await this.client.delete<ApiResponse<T>>(url, config);
-    return response.data.data;
+    const response = await this.client.delete<ApiResponse<T> | T>(url, config);
+    return this.unwrapResponse(response.data);
   }
 
   getClient(): AxiosInstance {

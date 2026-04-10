@@ -1,473 +1,383 @@
-import React, { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, FileText, Briefcase, CheckCircle, Trash2, Download } from 'lucide-react';
+import { ArrowUpRight, Bot, Briefcase, FileEdit, FileText, Filter, Plus, Search, Trash2, UploadCloud } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
-import { Badge } from '@/components/ui/Badge';
-import { EmptyState, Skeleton } from '@/components/ui/States';
 import { showToast } from '@/components/ui/Toast';
-import { resumeService } from '@/services/resumeService';
-import { jobService } from '@/services/jobService';
-import { dashboardService } from '@/services/dashboardService';
-import { useAsync } from '@/hooks/useAsync';
-import { formatDate, truncateText } from '@/utils';
+import { useCreateJob, useCreateResume, useDashboardStats, useDeleteJob, useDeleteResume, useJobs, useResumes, useUpdateJob, useUpdateResume } from '@/hooks/queries';
+import { formatDate } from '@/utils';
+import type { Job, Resume } from '@/types';
 
-interface StatCard {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  trend?: string;
-}
-
-const StatCard = ({ icon, label, value, trend }: StatCard) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-  >
-    <Card hover className="h-full">
-      <div className="flex items-center justify-between mb-2">
-        <div className="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
-          {icon}
-        </div>
-        {trend && <Badge variant="success">{trend}</Badge>}
-      </div>
-      <p className="text-gray-600 text-sm font-medium">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
-    </Card>
-  </motion.div>
-);
+const statCards = [
+  { key: 'totalResumes', title: 'Resume library', description: 'Versions ready for targeted applications.', icon: FileText },
+  { key: 'totalJobs', title: 'Saved jobs', description: 'Tracked roles with clean context.', icon: Briefcase },
+  { key: 'totalApplications', title: 'Applications', description: 'Pipeline metrics and future AI actions.', icon: Bot },
+] as const;
 
 export const DashboardPage = () => {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [jobModalOpen, setJobModalOpen] = useState(false);
-  const [newResume, setNewResume] = useState({ name: '', file: null as File | null });
-  const [newJob, setNewJob] = useState({ title: '', company: '', description: '' });
+  const [editingResume, setEditingResume] = useState<Resume | null>(null);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [resumeDraft, setResumeDraft] = useState({ name: '', file: null as File | null });
+  const [jobDraft, setJobDraft] = useState({ title: '', company: '', description: '', url: '' });
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | Job['status']>('all');
 
-  // Fetch data
-  const {
-    data: stats,
-    loading: statsLoading,
-  } = useAsync(
-    async () => {
-      try {
-        return await dashboardService.getStats();
-      } catch {
-        return { totalResumes: 0, totalJobs: 0, totalApplications: 0, recentApplications: [] };
+  const statsQuery = useDashboardStats();
+  const resumesQuery = useResumes();
+  const jobsQuery = useJobs();
+  const createResume = useCreateResume();
+  const updateResume = useUpdateResume();
+  const deleteResume = useDeleteResume();
+  const createJob = useCreateJob();
+  const updateJob = useUpdateJob();
+  const deleteJob = useDeleteJob();
+
+  const filteredJobs = useMemo(() => {
+    const jobs = jobsQuery.data ?? [];
+    return jobs.filter((job: Job) => {
+      const matchesSearch = !search || [job.title, job.company, job.description, job.url].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [jobsQuery.data, search, statusFilter]);
+
+  const resumeContent = (() => {
+    if (resumesQuery.isLoading) {
+      return (
+        <>
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </>
+      );
+    }
+
+    if (!resumesQuery.data?.length) {
+      return (
+        <EmptyState icon={<FileText className="h-12 w-12" />} title="No resumes yet" description="Upload your first resume to start building a sharper application workflow." action={<Button onClick={() => setResumeModalOpen(true)}>Add Resume</Button>} />
+      );
+    }
+
+    return resumesQuery.data.map((resume: Resume, index: number) => (
+      <motion.div key={resume.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.04 }}>
+        <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-slate-950 dark:text-white">{resume.name}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Uploaded {formatDate(resume.uploadDate || resume.createdAt)}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={() => {
+                setEditingResume(resume);
+                setResumeDraft({ name: resume.name, file: null });
+                setResumeModalOpen(true);
+              }}>
+                <FileEdit className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={() => globalThis.open(resume.s3Url, '_blank')}>
+                <ArrowUpRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={async () => {
+                try {
+                  await deleteResume.mutateAsync(resume.id);
+                  showToast.success('Resume deleted');
+                } catch {
+                  showToast.error('Could not delete resume');
+                }
+              }}>
+                <Trash2 className="h-4 w-4 text-rose-500" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    ));
+  })();
+
+  const jobsContent = (() => {
+    if (jobsQuery.isLoading) {
+      return (
+        <>
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
+        </>
+      );
+    }
+
+    if (!filteredJobs.length) {
+      return (
+        <div className="xl:col-span-2">
+          <EmptyState icon={<Briefcase className="h-12 w-12" />} title="No saved jobs" description="Add a job description to build a high-context application workflow." action={<Button onClick={() => setJobModalOpen(true)}>Save Job</Button>} />
+        </div>
+      );
+    }
+
+    return filteredJobs.map((job: Job, index: number) => {
+      const badgeVariant = job.status === 'applied' ? 'success' : job.status === 'rejected' ? 'danger' : 'default';
+
+      return (
+        <motion.div key={job.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
+          <div className="h-full rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{job.title}</h3>
+                  <Badge variant={badgeVariant}>{job.status}</Badge>
+                </div>
+                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{job.company}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => {
+                  setEditingJob(job);
+                  setJobDraft({ title: job.title, company: job.company, description: job.description, url: job.url || '' });
+                  setJobModalOpen(true);
+                }}>
+                  <FileEdit className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={async () => {
+                  try {
+                    await deleteJob.mutateAsync(job.id);
+                    showToast.success('Job deleted');
+                  } catch {
+                    showToast.error('Could not delete job');
+                  }
+                }}>
+                  <Trash2 className="h-4 w-4 text-rose-500" />
+                </Button>
+              </div>
+            </div>
+            <p className="mt-4 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{job.description}</p>
+            <div className="mt-5 flex items-center justify-between gap-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Saved {formatDate(job.savedDate || job.createdAt)}</p>
+              {job.url ? (
+                <a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                  Visit posting <ArrowUpRight className="ml-1 h-4 w-4" />
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </motion.div>
+      );
+    });
+  })();
+
+  const resetResumeForm = () => {
+    setResumeDraft({ name: '', file: null });
+    setEditingResume(null);
+    setResumeModalOpen(false);
+  };
+
+  const resetJobForm = () => {
+    setJobDraft({ title: '', company: '', description: '', url: '' });
+    setEditingJob(null);
+    setJobModalOpen(false);
+  };
+
+  const handleResumeSubmit = async () => {
+    try {
+      if (editingResume) {
+        await updateResume.mutateAsync({ id: editingResume.id, name: resumeDraft.name });
+        showToast.success('Resume updated');
+      } else {
+        if (!resumeDraft.file) {
+          showToast.error('Please attach a PDF resume');
+          return;
+        }
+        await createResume.mutateAsync({ name: resumeDraft.name, file: resumeDraft.file });
+        showToast.success('Resume uploaded');
       }
-    },
-    true
-  );
-
-  const {
-    data: resumes,
-    loading: resumesLoading,
-    execute: fetchResumes,
-  } = useAsync(async () => resumeService.getResumes(), true);
-
-  const {
-    data: jobs,
-    loading: jobsLoading,
-    execute: fetchJobs,
-  } = useAsync(async () => jobService.getJobs(), true);
-
-  const handleAddResume = async () => {
-    if (!newResume.name || !newResume.file) {
-      showToast.error('Please fill in all fields');
-      return;
-    }
-
-    try {
-      await resumeService.createResume({
-        name: newResume.name,
-        file: newResume.file,
-      });
-      showToast.success('Resume added successfully');
-      setResumeModalOpen(false);
-      setNewResume({ name: '', file: null });
-      fetchResumes();
-    } catch (error) {
-      showToast.error('Failed to add resume');
+      resetResumeForm();
+    } catch {
+      showToast.error('Unable to save resume right now');
     }
   };
 
-  const handleDeleteResume = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this resume?')) return;
-
+  const handleJobSubmit = async () => {
     try {
-      await resumeService.deleteResume(id);
-      showToast.success('Resume deleted successfully');
-      fetchResumes();
-    } catch (error) {
-      showToast.error('Failed to delete resume');
-    }
-  };
-
-  const handleAddJob = async () => {
-    if (!newJob.title || !newJob.company || !newJob.description) {
-      showToast.error('Please fill in all fields');
-      return;
-    }
-
-    try {
-      await jobService.createJob(newJob);
-      showToast.success('Job saved successfully');
-      setJobModalOpen(false);
-      setNewJob({ title: '', company: '', description: '' });
-      fetchJobs();
-    } catch (error) {
-      showToast.error('Failed to save job');
-    }
-  };
-
-  const handleDeleteJob = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return;
-
-    try {
-      await jobService.deleteJob(id);
-      showToast.success('Job deleted successfully');
-      fetchJobs();
-    } catch (error) {
-      showToast.error('Failed to delete job');
+      if (editingJob) {
+        await updateJob.mutateAsync({ id: editingJob.id, payload: { title: jobDraft.title, company: jobDraft.company, description: jobDraft.description, url: jobDraft.url } });
+        showToast.success('Job updated');
+      } else {
+        await createJob.mutateAsync(jobDraft);
+        showToast.success('Job saved');
+      }
+      resetJobForm();
+    } catch {
+      showToast.error('Unable to save job details');
     }
   };
 
   return (
-    <div className="p-6 sm:p-8 lg:p-10 space-y-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">Welcome back! Here's your job search overview.</p>
-      </motion.div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {statsLoading ? (
-          <>
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-          </>
-        ) : (
-          <>
-            <StatCard
-              icon={<FileText className="h-5 w-5" />}
-              label="Total Resumes"
-              value={stats?.totalResumes || 0}
-            />
-            <StatCard
-              icon={<Briefcase className="h-5 w-5" />}
-              label="Saved Jobs"
-              value={stats?.totalJobs || 0}
-            />
-            <StatCard
-              icon={<CheckCircle className="h-5 w-5" />}
-              label="Applications"
-              value={stats?.totalApplications || 0}
-              trend="+2 this week"
-            />
-          </>
-        )}
-      </div>
-
-      {/* Resumes Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-7xl space-y-8 pb-10">
+      <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="section-frame overflow-hidden p-6 sm:p-8">
+        <div className="grid gap-8 xl:grid-cols-[1.12fr_0.88fr] xl:items-end">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">My Resumes</h2>
-            <p className="mt-1 text-gray-600">Manage your resume collection</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-indigo-500">Overview</p>
+            <h1 className="mt-4 font-display text-4xl font-semibold text-slate-950 dark:text-white">Operate your entire job search from one premium dashboard.</h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">Manage resumes, track opportunities, and prepare for AI-generated application content with a workflow that feels precise and fast.</p>
           </div>
-          <Button onClick={() => setResumeModalOpen(true)} size="lg">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Resume
-          </Button>
-        </div>
-
-        {resumesLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-20" />
-            <Skeleton className="h-20" />
-          </div>
-        ) : resumes && resumes.length > 0 ? (
-          <div className="grid gap-4">
-            {resumes.map((resume) => (
-              <motion.div
-                key={resume.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card hover className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
-                      <FileText className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{resume.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        Uploaded {formatDate(resume.uploadDate)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => window.open(resume.s3Url)}
-                    >
-                      <Download className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteResume(resume.id)}
-                    >
-                      <Trash2 className="h-5 w-5 text-red-600" />
-                    </Button>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <EmptyState
-              icon={<FileText className="h-12 w-12" />}
-              title="No resumes yet"
-              description="Upload your first resume to get started"
-              action={
-                <Button onClick={() => setResumeModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Resume
-                </Button>
-              }
-            />
-          </Card>
-        )}
-      </motion.section>
-
-      {/* Jobs Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Job Descriptions</h2>
-            <p className="mt-1 text-gray-600">Save and manage job opportunities</p>
-          </div>
-          <Button onClick={() => setJobModalOpen(true)} size="lg">
-            <Plus className="h-5 w-5 mr-2" />
-            Save Job
-          </Button>
-        </div>
-
-        {jobsLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-24" />
-            <Skeleton className="h-24" />
-          </div>
-        ) : jobs && jobs.length > 0 ? (
-          <div className="grid gap-4">
-            {jobs.map((job) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card hover>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                        <Badge
-                          variant={
-                            job.status === 'applied'
-                              ? 'success'
-                              : job.status === 'rejected'
-                                ? 'danger'
-                                : 'default'
-                          }
-                        >
-                          {job.status}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-600 font-medium">{job.company}</p>
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        {truncateText(job.description, 150)}
-                      </p>
-                      {job.url && (
-                        <a
-                          href={job.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-indigo-600 hover:underline mt-2 inline-block"
-                        >
-                          View posting →
-                        </a>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteJob(job.id)}
-                      >
-                        <Trash2 className="h-5 w-5 text-red-600" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <EmptyState
-              icon={<Briefcase className="h-12 w-12" />}
-              title="No jobs saved yet"
-              description="Start saving jobs to track your opportunities"
-              action={
-                <Button onClick={() => setJobModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Save Job
-                </Button>
-              }
-            />
-          </Card>
-        )}
-      </motion.section>
-
-      {/* AI Generation Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-      >
-        <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200">
-          <CardHeader
-            title="🚀 AI-Powered Cover Letter Generation"
-            description="Coming soon - Automatically generate tailored cover letters for your applications"
-          />
-          <CardContent>
-            <Button variant="secondary" disabled>
-              Coming Soon
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.section>
-
-      {/* Add Resume Modal */}
-      <Modal
-        isOpen={resumeModalOpen}
-        onClose={() => setResumeModalOpen(false)}
-        title="Add Resume"
-        size="md"
-      >
-        <div className="space-y-4">
-          <Input
-            label="Resume Name"
-            placeholder="e.g., Software Engineer Resume"
-            value={newResume.name}
-            onChange={(e) => setNewResume({ ...newResume, name: e.target.value })}
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload PDF
-            </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors cursor-pointer">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setNewResume({ ...newResume, file: e.target.files?.[0] || null })}
-                className="hidden"
-                id="file-input"
-              />
-              <label htmlFor="file-input" className="cursor-pointer">
-                <p className="text-sm text-gray-600">
-                  {newResume.file?.name || 'Click to upload or drag and drop'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">PDF files only</p>
-              </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[24px] bg-slate-950 p-5 text-white shadow-soft">
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Next up</p>
+              <p className="mt-3 text-xl font-semibold">Generate tailored cover letters</p>
+            </div>
+            <div className="glass-panel rounded-[24px] p-5">
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Quick open</p>
+              <p className="mt-3 text-sm font-medium text-slate-900 dark:text-white">Use Cmd+K to jump between dashboard sections.</p>
             </div>
           </div>
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setResumeModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={handleAddResume}
-              isLoading={false}
-            >
-              Add Resume
-            </Button>
+        </div>
+      </motion.section>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {statsQuery.isLoading
+          ? statCards.map((item) => <Skeleton key={item.key} className="h-36" />)
+          : statCards.map((item, index) => {
+              const Icon = item.icon;
+              const value = statsQuery.data?.[item.key] ?? 0;
+              return (
+                <motion.div key={item.key} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+                  <Card hover className="h-full">
+                    <CardContent>
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{item.title}</p>
+                          <p className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">{value}</p>
+                          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.description}</p>
+                        </div>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+      </div>
+
+      {resumesQuery.isError || jobsQuery.isError ? (
+        <ErrorState message="Some dashboard data could not be loaded. The services may still be starting up, or the API response shape may differ from the expected contract." />
+      ) : null}
+
+      <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <Card className="overflow-hidden">
+          <CardHeader title="Resume manager" description="Upload, rename, and curate every version you send out." />
+          <CardContent>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Badge>Library</Badge>
+              <Button onClick={() => setResumeModalOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Add Resume
+              </Button>
+            </div>
+            <div className="rounded-[24px] border border-dashed border-indigo-200 bg-indigo-50/60 p-5 dark:border-indigo-500/20 dark:bg-indigo-500/10">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Drag and drop upload area</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Prepared for polished file upload interactions. Use the modal below to attach a PDF right now.</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft dark:bg-slate-900">
+                  <UploadCloud className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 space-y-4">
+              {resumeContent}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader title="AI drafting panel" description="A polished placeholder for future cover letter generation and smart assistance." />
+          <CardContent>
+            <div className="rounded-[28px] bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white shadow-panel">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Badge variant="secondary">Coming soon</Badge>
+                  <h3 className="mt-4 font-display text-2xl font-semibold">Generate Cover Letter</h3>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                  <Bot className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-slate-300">This area is ready for AI-generated drafts, inline refinement, and polished content review states once the generation endpoint is connected.</p>
+              <div className="mt-6 rounded-[24px] border border-white/10 bg-white/5 p-5">
+                <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Output preview</p>
+                <p className="mt-3 text-sm leading-7 text-slate-300">Your tailored cover letter will appear here with rich visual hierarchy, actions, and revision states.</p>
+              </div>
+              <Button className="mt-6" variant="outline" disabled>Generate Cover Letter</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader title="Job description manager" description="Search, filter, create, edit, and keep opportunity context close to your writing workflow." />
+        <CardContent>
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-1 items-center gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+              <Search className="h-4 w-4 text-slate-400" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by title, company, description, or URL" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                <Filter className="h-4 w-4" />
+                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | Job['status'])} className="bg-transparent outline-none">
+                  <option value="all">All statuses</option>
+                  <option value="saved">Saved</option>
+                  <option value="applied">Applied</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+              <Button onClick={() => setJobModalOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Save Job
+              </Button>
+            </div>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {jobsContent}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Modal isOpen={resumeModalOpen} onClose={resetResumeForm} title={editingResume ? 'Edit Resume' : 'Add Resume'} size="md">
+        <div className="space-y-5">
+          <Input label="Resume name" placeholder="Senior Product Designer Resume" value={resumeDraft.name} onChange={(event) => setResumeDraft((current) => ({ ...current, name: event.target.value }))} />
+          {editingResume === null ? (
+            <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-900/50">
+              <input id="resume-file" type="file" accept=".pdf" className="hidden" onChange={(event) => setResumeDraft((current) => ({ ...current, file: event.target.files?.[0] || null }))} />
+              <label htmlFor="resume-file" className="cursor-pointer text-sm text-slate-600 dark:text-slate-300">{resumeDraft.file?.name || 'Click to attach a PDF resume'}</label>
+            </div>
+          ) : null}
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={resetResumeForm}>Cancel</Button>
+            <Button className="flex-1" onClick={handleResumeSubmit} isLoading={createResume.isPending || updateResume.isPending}>{editingResume ? 'Save Changes' : 'Upload Resume'}</Button>
           </div>
         </div>
       </Modal>
 
-      {/* Add Job Modal */}
-      <Modal
-        isOpen={jobModalOpen}
-        onClose={() => setJobModalOpen(false)}
-        title="Save Job Description"
-        size="md"
-      >
-        <div className="space-y-4">
-          <Input
-            label="Job Title"
-            placeholder="e.g., Senior Software Engineer"
-            value={newJob.title}
-            onChange={(e) => setNewJob({ ...newJob, title: e.target.value })}
-          />
-          <Input
-            label="Company"
-            placeholder="e.g., Acme Corporation"
-            value={newJob.company}
-            onChange={(e) => setNewJob({ ...newJob, company: e.target.value })}
-          />
+      <Modal isOpen={jobModalOpen} onClose={resetJobForm} title={editingJob ? 'Edit Job' : 'Save Job Description'} size="md">
+        <div className="space-y-5">
+          <Input label="Job title" placeholder="Senior Frontend Engineer" value={jobDraft.title} onChange={(event) => setJobDraft((current) => ({ ...current, title: event.target.value }))} />
+          <Input label="Company" placeholder="Acme" value={jobDraft.company} onChange={(event) => setJobDraft((current) => ({ ...current, company: event.target.value }))} />
+          <Input label="Posting URL" placeholder="https://company.com/jobs/123" value={jobDraft.url} onChange={(event) => setJobDraft((current) => ({ ...current, url: event.target.value }))} />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Job Description
-            </label>
-            <textarea
-              className="w-full h-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Paste the job description here..."
-              value={newJob.description}
-              onChange={(e) => setNewJob({ ...newJob, description: e.target.value })}
-            />
+            <label htmlFor="job-description" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+            <textarea id="job-description" value={jobDraft.description} onChange={(event) => setJobDraft((current) => ({ ...current, description: event.target.value }))} rows={6} className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-indigo-500/20" placeholder="Paste the job description here" />
           </div>
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setJobModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={handleAddJob}
-              isLoading={false}
-            >
-              Save Job
-            </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={resetJobForm}>Cancel</Button>
+            <Button className="flex-1" onClick={handleJobSubmit} isLoading={createJob.isPending || updateJob.isPending}>{editingJob ? 'Save Changes' : 'Save Job'}</Button>
           </div>
         </div>
       </Modal>

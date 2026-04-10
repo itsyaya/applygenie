@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowRight, LockKeyhole, Mail, Sparkles, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { showToast } from '@/components/ui/Toast';
@@ -31,7 +32,7 @@ export const RegisterPage = () => {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (!formData.password) {
+    if (formData.password.length === 0) {
       newErrors.password = 'Password is required';
     } else {
       const passwordValidation = validatePassword(formData.password);
@@ -74,49 +75,44 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
-      {/* Background decorative elements */}
-      <div className="absolute top-10 left-10 h-40 w-40 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-      <div className="absolute bottom-10 right-10 h-40 w-40 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
-      >
-        <div className="rounded-2xl bg-white shadow-xl border border-gray-200 overflow-hidden">
-          {/* Header Gradient */}
-          <div className="h-20 bg-gradient-to-r from-indigo-600 to-purple-600" />
-
-          {/* Content */}
-          <div className="px-8 py-8">
-            <div className="text-center mb-8 -mt-12">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="h-20 w-20 mx-auto bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
-              >
-                <span className="text-2xl font-bold text-white">AG</span>
-              </motion.div>
-              <h1 className="mt-4 text-2xl font-bold text-gray-900">Get started</h1>
-              <p className="mt-2 text-gray-600 text-sm">Create your ApplyGenie account today</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
+      <div className="pointer-events-none absolute inset-0 hero-grid opacity-50" />
+      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
+      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-violet-200/25 blur-3xl" />
+      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} className="section-frame hidden p-10 lg:block">
+          <div className="rounded-[28px] bg-gradient-to-br from-indigo-600 via-violet-600 to-sky-500 p-8 text-white shadow-panel">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm">
+              <Sparkles className="h-4 w-4" /> Launch faster
             </div>
+            <h1 className="mt-8 font-display text-5xl font-semibold leading-tight">Create a workspace that makes job hunting feel sharp again.</h1>
+            <p className="mt-5 max-w-md text-base leading-8 text-white/85">Track resumes, save job descriptions, and prepare for AI-powered content generation in one premium product surface.</p>
+          </div>
+        </motion.div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="section-frame p-8 sm:p-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-indigo-500">Create account</p>
+          <h2 className="mt-4 font-display text-3xl font-semibold text-slate-950 dark:text-white">Start using ApplyGenie</h2>
+          <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">Build your personal application workspace with secure access and polished tools from day one.</p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <div>
               <Input
                 label="Full Name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Jane Doe"
                 value={formData.name}
                 onChange={(e) => {
                   setFormData({ ...formData, name: e.target.value });
                   if (errors.name) setErrors({ ...errors, name: '' });
                 }}
                 error={errors.name}
+                className="pl-11"
               />
+              <UserRound className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" />
+            </div>
 
+            <div>
               <Input
                 label="Email"
                 type="email"
@@ -127,8 +123,12 @@ export const RegisterPage = () => {
                   if (errors.email) setErrors({ ...errors, email: '' });
                 }}
                 error={errors.email}
+                className="pl-11"
               />
+              <Mail className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" />
+            </div>
 
+            <div>
               <Input
                 label="Password"
                 type="password"
@@ -139,47 +139,39 @@ export const RegisterPage = () => {
                   if (errors.password) setErrors({ ...errors, password: '' });
                 }}
                 error={errors.password}
+                className="pl-11"
               />
-
-              <Input
-                label="Confirm Password"
-                type="password"
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={(e) => {
-                  setFormData({ ...formData, confirmPassword: e.target.value });
-                  if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
-                }}
-                error={errors.confirmPassword}
-              />
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Button
-                  type="submit"
-                  className="w-full h-10"
-                  isLoading={isLoading}
-                  disabled={isLoading}
-                >
-                  Create Account
-                </Button>
-              </motion.div>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-gray-600 text-sm">
-                Already have an account?{' '}
-                <Link to={ROUTES.LOGIN} className="text-indigo-600 font-semibold hover:text-indigo-700">
-                  Sign in
-                </Link>
-              </p>
+              <LockKeyhole className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" />
             </div>
-          </div>
-        </div>
-      </motion.div>
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={(e) => {
+                setFormData({ ...formData, confirmPassword: e.target.value });
+                if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+              }}
+              error={errors.confirmPassword}
+            />
+
+            <div className="pt-4">
+              <Button type="submit" className="w-full" size="lg" isLoading={isLoading} disabled={isLoading}>
+                Create Account
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+            Already have an account?{' '}
+            <Link to={ROUTES.LOGIN} className="font-semibold text-indigo-600 hover:text-indigo-700">
+              Sign in
+            </Link>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 };

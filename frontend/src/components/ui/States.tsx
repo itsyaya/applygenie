@@ -22,11 +22,11 @@ export const EmptyState = ({
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
-    className={cn('flex flex-col items-center justify-center py-12 px-4', className)}
+    className={cn('flex flex-col items-center justify-center rounded-[28px] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-12 text-center dark:border-slate-800 dark:bg-slate-900/60', className)}
   >
-    {icon && <div className="mb-4 text-gray-400">{icon}</div>}
-    <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-    {description && <p className="text-sm text-gray-600 mb-6 text-center max-w-sm">{description}</p>}
+    {icon && <div className="mb-4 text-slate-400">{icon}</div>}
+    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+    {description && <p className="mb-6 max-w-sm text-sm text-slate-600 dark:text-slate-400">{description}</p>}
     {action && <div>{action}</div>}
   </motion.div>
 );
@@ -66,7 +66,7 @@ export const ErrorState = ({
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
-    className="rounded-lg border border-red-200 bg-red-50 p-6"
+    className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 dark:border-rose-900/40 dark:bg-rose-950/20"
   >
     <div className="flex items-start gap-4">
       <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -83,7 +83,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const Skeleton = ({ className, ...props }: SkeletonProps) => (
   <div
-    className={cn('bg-gray-200 rounded animate-pulse', className)}
+    className={cn('animate-pulse rounded-[24px] bg-slate-200/80 dark:bg-slate-800', className)}
     {...props}
   />
 );
