@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -10,19 +9,17 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ children, hover = false, className, ...props }, ref) => (
-    <motion.div
+    <div
       ref={ref}
       className={cn(
         'rounded-lg border border-gray-200 bg-white pl-6 pr-6 py-4 shadow-sm',
-        hover && 'hover:shadow-md hover:border-gray-300 cursor-pointer',
+        hover && 'hover:shadow-md hover:border-gray-300 cursor-pointer transition-all duration-200 hover:y-(-2px)',
         className
       )}
-      whileHover={hover ? { y: -2 } : {}}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   )
 );
 
