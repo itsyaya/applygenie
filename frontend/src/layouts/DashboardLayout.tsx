@@ -11,16 +11,22 @@ import {
   X,
   LogOut,
   ChevronDown,
+  Search,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
 import { showToast } from '@/components/ui/Toast';
 import { ROUTES } from '@/constants';
+import { ThemeToggle } from '@/components/app/ThemeToggle';
+import { BrandMark } from '@/components/app/BrandMark';
+import { useUiStore } from '@/store/uiStore';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
-  label: string;
+  label?: string;
   href: string;
   isActive: boolean;
 }
@@ -28,15 +34,15 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon, label, href, isActive }: SidebarItemProps) => (
   <Link to={href}>
     <motion.div
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+      className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200 ${
         isActive
-          ? 'bg-indigo-600 text-white'
-          : 'text-gray-700 hover:bg-gray-100'
+          ? 'bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500 text-white shadow-soft'
+          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
       }`}
       whileHover={{ x: 4 }}
     >
       {icon}
-      <span className="font-medium text-sm">{label}</span>
+      {label ? <span className="text-sm font-medium">{label}</span> : null}
     </motion.div>
   </Link>
 );
@@ -51,17 +57,20 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
+  const toggleSidebarCollapsed = useUiStore((state) => state.toggleSidebarCollapsed);
+  const setCommandPaletteOpen = useUiStore((state) => state.setCommandPaletteOpen);
 
   const handleLogout = async () => {
     try {
       await authService.logout();
-      logout();
       showToast.success('Logged out successfully');
-      window.location.href = ROUTES.HOME;
-    } catch (error) {
-      logout();
-      window.location.href = ROUTES.HOME;
+    } catch {
+      // Logout should proceed locally even if the server call fails.
     }
+
+    logout();
+    globalThis.location.href = ROUTES.HOME;
   };
 
   const menuItems = [
@@ -75,7 +84,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-transparent">
       {/* Sidebar Overlay (Mobile) */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -92,33 +101,44 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -256 }}
+        animate={{ x: sidebarOpen ? 0 : -256, width: sidebarCollapsed ? 104 : 280 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 z-50 lg:z-auto lg:relative lg:translate-x-0 flex flex-col shadow-lg lg:shadow-none"
+        className="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/50 bg-white/75 shadow-panel backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80 lg:relative lg:z-auto lg:translate-x-0"
       >
         {/* Logo */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+        <div className="flex h-20 items-center justify-between border-b border-slate-200/80 px-5 dark:border-slate-800">
+          {sidebarCollapsed ? (
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-sky-500 text-sm font-semibold text-white shadow-glow">
               AG
             </div>
-            <span className="font-bold text-gray-900">ApplyGenie</span>
-          </div>
+          ) : (
+            <BrandMark />
+          )}
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
+            className="text-slate-500 hover:text-slate-700 lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+        <div className="px-4 pt-5">
+          <button
+            type="button"
+            onClick={() => setCommandPaletteOpen(true)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 transition hover:border-indigo-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
+          >
+            <Search className="h-4 w-4" />
+            {sidebarCollapsed ? null : <span>Search with Cmd+K</span>}
+          </button>
+        </div>
+        <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6">
           {menuItems.map((item) => (
             <SidebarItem
               key={item.href}
               icon={item.icon}
-              label={item.label}
+              label={sidebarCollapsed ? '' : item.label}
               href={item.href}
               isActive={isActive(item.href)}
             />
@@ -126,14 +146,22 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </nav>
 
         {/* Logout Button */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-slate-200/80 p-4 dark:border-slate-800">
+          <Button
+            variant="outline"
+            className="mb-3 w-full justify-start"
+            onClick={toggleSidebarCollapsed}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen className="mr-2 h-4 w-4" /> : <PanelLeftClose className="mr-2 h-4 w-4" />}
+            {!sidebarCollapsed && 'Collapse'}
+          </Button>
           <Button
             variant="secondary"
             className="w-full justify-start"
             onClick={handleLogout}
           >
             <LogOut className="h-5 w-5 mr-2" />
-            Logout
+            {!sidebarCollapsed && 'Logout'}
           </Button>
         </div>
       </motion.aside>
@@ -141,30 +169,31 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
+        <header className="flex h-20 items-center justify-between border-b border-white/50 bg-white/60 px-4 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/60 sm:px-6 lg:px-8">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-gray-700 hover:text-gray-900"
+            className="text-slate-700 hover:text-slate-900 lg:hidden dark:text-slate-300 dark:hover:text-white"
           >
             <Menu className="h-6 w-6" />
           </button>
 
           {/* User Profile */}
           <div className="flex items-center gap-4 ml-auto">
+            <ThemeToggle />
             <motion.div
               className="relative"
               onMouseEnter={() => setProfileMenuOpen(true)}
               onMouseLeave={() => setProfileMenuOpen(false)}
             >
-              <button className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="h-9 w-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <button className="flex items-center gap-3 rounded-2xl px-3 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-sm font-semibold text-white">
                   {user?.name?.[0]?.toUpperCase()}
                 </div>
                 <div className="hidden sm:block text-sm">
-                  <p className="font-medium text-gray-900">{user?.name || 'User'}</p>
-                  <p className="text-xs text-gray-600">{user?.email}</p>
+                  <p className="font-medium text-slate-900 dark:text-slate-100">{user?.name || 'User'}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">{user?.email}</p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-600" />
+                <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400" />
               </button>
 
               {/* Dropdown Menu */}
@@ -174,11 +203,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                    className="absolute right-0 z-50 mt-2 w-52 rounded-2xl border border-slate-200 bg-white/95 py-2 shadow-panel backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
                   >
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       <LogOut className="h-4 w-4" />
                       Logout
@@ -191,7 +220,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto px-4 py-4 sm:px-6 lg:px-8">
           {children}
         </main>
       </div>
