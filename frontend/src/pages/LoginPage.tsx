@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { showToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
-import { validateEmail, validatePassword, getErrorMessage } from '@/utils';
+import { validateEmail, getErrorMessage } from '@/utils';
 import { ROUTES } from '@/constants';
 
 export const LoginPage = () => {
