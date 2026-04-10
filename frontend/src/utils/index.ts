@@ -18,12 +18,12 @@ export const getErrorMessage = (error: unknown): string => {
 };
 
 export const isApiError = (error: unknown): error is ApiError => {
+  if (!error || typeof error !== 'object') return false;
+  const apiError = error as Record<string, unknown>;
   return (
-    error &&
-    typeof error === 'object' &&
-    'success' in error &&
-    'message' in error &&
-    (error as ApiError).success === false
+    'success' in apiError &&
+    'message' in apiError &&
+    apiError.success === false
   );
 };
 
