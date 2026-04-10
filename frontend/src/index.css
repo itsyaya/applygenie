@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,18 +9,20 @@
 }
 
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   font-weight: 400;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22%),
+    #f8fafc;
 }
 
 html {
-  @apply scroll-smooth;
-  @apply bg-white text-gray-900;
+  @apply scroll-smooth bg-slate-50 text-slate-900;
 }
 
 body {
@@ -26,11 +30,30 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: transparent;
 }
 
 #root {
   width: 100%;
   height: 100%;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+  opacity: 0.55;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+.dark html,
+.dark body {
+  @apply bg-slate-950 text-slate-50;
 }
 
 /* Scrollbar styling */
@@ -61,6 +84,29 @@ a:focus-visible {
 /* Selection styles */
 ::selection {
   @apply bg-indigo-600 text-white;
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen bg-transparent text-slate-900 dark:text-slate-100;
+  }
+
+  .glass-panel {
+    @apply border border-white/50 bg-white/75 backdrop-blur-xl shadow-panel dark:border-white/10 dark:bg-slate-900/75;
+  }
+
+  .section-frame {
+    @apply rounded-[28px] border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80;
+  }
+
+  .hero-grid {
+    background-size: 40px 40px;
+    @apply bg-hero-grid;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-indigo-600 via-violet-500 to-sky-500 bg-clip-text text-transparent;
+  }
 }
 
 /* Animations */
