@@ -44,7 +44,7 @@ export const LandingPage = () => {
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Button size="lg" onClick={() => navigate(ROUTES.REGISTER)}>
-                Get Started
+                Get Started for Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => navigate(ROUTES.LOGIN)}>
