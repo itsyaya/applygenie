@@ -1,4 +1,3 @@
-import React from 'react';
 import Toast, { Toaster as HotToaster } from 'react-hot-toast';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
