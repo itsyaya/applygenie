@@ -82,10 +82,8 @@ export const ErrorState = ({
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const Skeleton = ({ className, ...props }: SkeletonProps) => (
-  <motion.div
-    className={cn('bg-gray-200 rounded', className)}
-    animate={{ opacity: [0.6, 1, 0.6] }}
-    transition={{ duration: 1.5, repeat: Infinity }}
+  <div
+    className={cn('bg-gray-200 rounded animate-pulse', className)}
     {...props}
   />
 );
