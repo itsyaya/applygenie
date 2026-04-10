@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import toast from 'react-hot-toast';
 import { getErrorMessage } from '@/utils';
 
 interface UseAsyncState<T> {
