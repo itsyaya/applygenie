@@ -41,6 +41,9 @@ frontend/*.local
 *.swp
 *.swo
 
+# ===== Claude Configuration =====
+.claude/
+
 # ===== Logs =====
 *.log
 logs/
