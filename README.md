@@ -5,7 +5,8 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue?style=for-the-badge&logo=mysql)
 ![JWT](https://img.shields.io/badge/JWT-Security-black?style=for-the-badge&logo=json-web-tokens)
 
-ApplyGenie AI Backend is a production-level, scalable backend system for an AI-powered job application assistant. Built with Java 17 and Spring Boot, it provides secure authentication, resume and job description management, and lays the groundwork for seamless AI integrations to generate tailored career content.
+ApplyGenie AI Backend is a production-level, scalable backend system for an AI-powered job application assistant.
+Built with Java 17 and Spring Boot, it provides secure authentication, resume and job description management, and lays the groundwork for seamless AI integrations to generate tailored career content.
 
 | Landing Page | Dashboard |
 | :---: | :---: |
