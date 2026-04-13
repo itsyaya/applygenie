@@ -20,7 +20,7 @@ export const AppearanceDock = () => {
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="fixed bottom-5 right-5 z-[80]"
     >
-      <div className="glass-panel flex items-center gap-2 rounded-2xl px-3 py-2">
+      <div className="glass-panel flex items-center gap-2 rounded-2xl px-3 py-2 shadow-[0_12px_32px_rgba(15,23,42,0.18)]">
         <div className="hidden items-center gap-1 rounded-xl bg-white/70 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:bg-slate-900/70 dark:text-slate-300 sm:flex">
           <Sparkles className="h-3.5 w-3.5" />
           Style
@@ -35,7 +35,7 @@ export const AppearanceDock = () => {
               type="button"
               aria-label={`Switch accent to ${option.label}`}
               onClick={() => setAccent(option.id)}
-              className={`h-6 w-6 rounded-full bg-gradient-to-br ${option.className} transition-all duration-200 hover:scale-110 ${
+              className={`h-6 w-6 rounded-full bg-gradient-to-br ${option.className} transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                 accent === option.id ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-white ring-offset-white dark:ring-offset-slate-950' : 'opacity-80 hover:opacity-100'
               }`}
             />
