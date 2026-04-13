@@ -156,43 +156,49 @@ export const DashboardPage = () => {
       const badgeVariant = job.status === 'applied' ? 'success' : job.status === 'rejected' ? 'danger' : 'default';
 
       return (
-        <motion.div key={job.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
-          <div className="h-full rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+        <motion.div key={job.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }} whileHover={{ scale: 1.01, transition: { duration: 0.2 } }} className="group">
+          <div className="h-full rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60 transition-all duration-300 hover:shadow-lg hover:border-indigo-200/50 hover:bg-slate-50 dark:hover:border-indigo-500/30 dark:hover:bg-slate-900/80 cursor-pointer">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{job.title}</h3>
-                  <Badge variant={badgeVariant}>{job.status}</Badge>
+                  <h3 className="text-lg font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{job.title}</h3>
+                  <motion.div whileHover={{ scale: 1.08 }}>
+                    <Badge variant={badgeVariant}>{job.status}</Badge>
+                  </motion.div>
                 </div>
-                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{job.company}</p>
+                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{job.company}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={() => {
-                  setEditingJob(job);
-                  setJobDraft({ title: job.title, company: job.company, description: job.description, url: job.url || '' });
-                  setJobModalOpen(true);
-                }}>
-                  <FileEdit className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={async () => {
-                  try {
-                    await deleteJob.mutateAsync(job.id);
-                    showToast.success('Job deleted');
-                  } catch {
-                    showToast.error('Could not delete job');
-                  }
-                }}>
-                  <Trash2 className="h-4 w-4 text-rose-500" />
-                </Button>
+              <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="outline" size="icon" onClick={() => {
+                    setEditingJob(job);
+                    setJobDraft({ title: job.title, company: job.company, description: job.description, url: job.url || '' });
+                    setJobModalOpen(true);
+                  }}>
+                    <FileEdit className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="outline" size="icon" onClick={async () => {
+                    try {
+                      await deleteJob.mutateAsync(job.id);
+                      showToast.success('Job deleted');
+                    } catch {
+                      showToast.error('Could not delete job');
+                    }
+                  }}>
+                    <Trash2 className="h-4 w-4 text-rose-500" />
+                  </Button>
+                </motion.div>
               </div>
             </div>
-            <p className="mt-4 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{job.description}</p>
+            <p className="mt-4 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{job.description}</p>
             <div className="mt-5 flex items-center justify-between gap-4">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Saved {formatDate(job.savedDate || job.createdAt)}</p>
               {job.url ? (
-                <a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                <motion.a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors duration-300" whileHover={{ x: 4 }}>
                   Visit posting <ArrowUpRight className="ml-1 h-4 w-4" />
-                </a>
+                </motion.a>
               ) : null}
             </div>
           </div>
