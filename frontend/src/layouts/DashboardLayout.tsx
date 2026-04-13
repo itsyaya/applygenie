@@ -54,12 +54,20 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 1024 : false));
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const toggleSidebarCollapsed = useUiStore((state) => state.toggleSidebarCollapsed);
   const setCommandPaletteOpen = useUiStore((state) => state.setCommandPaletteOpen);
+
+  React.useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -101,7 +109,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -256, width: sidebarCollapsed ? 104 : 280 }}
+        animate={{ x: isDesktop || sidebarOpen ? 0 : -256, width: sidebarCollapsed ? 104 : 280 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/50 bg-white/75 shadow-panel backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80 lg:relative lg:z-auto lg:translate-x-0"
       >
