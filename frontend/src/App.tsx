@@ -4,6 +4,8 @@ import { Toaster } from '@/components/ui/Toast';
 import { useAuthStore } from '@/store/authStore';
 import { AppThemeSync } from '@/components/app/AppThemeSync';
 import { CommandPalette } from '@/components/app/CommandPalette';
+import { AppearanceDock } from '@/components/app/AppearanceDock';
+import { MouseAura } from '@/components/app/MouseAura';
 
 // Pages
 import { LandingPage } from '@/pages/LandingPage';
@@ -68,9 +70,11 @@ function App() {
   return (
     <>
       <AppThemeSync />
+      <MouseAura />
       <Toaster />
       <Router>
         <CommandPalette />
+        <AppearanceDock />
         <AppRoutes />
       </Router>
     </>
