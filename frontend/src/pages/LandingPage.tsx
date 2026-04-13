@@ -98,7 +98,7 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section id="features" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.34em] text-indigo-500">Features</p>
           <h2 className="mt-4 font-display text-4xl font-semibold text-slate-950 dark:text-white">Built to feel like a real startup product</h2>
