@@ -10,30 +10,23 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ children, hover = false, className, ...props }, ref) => {
+    const baseClasses = cn(
+      'rounded-[28px] border border-slate-200/80 bg-white/90 px-6 py-5 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/85 transition-all duration-300',
+      className
+    );
+
     if (hover) {
       return (
         <motion.div
-          ref={ref}
-          className={cn(
-            'rounded-[28px] border border-slate-200/80 bg-white/90 px-6 py-5 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/85 cursor-pointer transition-all duration-300',
-            className
-          )}
+          className={cn(baseClasses, 'cursor-pointer')}
           whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(79, 70, 229, 0.1)' }}
-          {...props}
         >
           {children}
         </motion.div>
       );
     }
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'rounded-[28px] border border-slate-200/80 bg-white/90 px-6 py-5 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/85 transition-all duration-300',
-          className
-        )}
-        {...props}
-      >
+      <div ref={ref} className={baseClasses} {...props}>
         {children}
       </div>
     );
