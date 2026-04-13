@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Briefcase, FileText, Home, LogIn, Search, Settings, Sparkles } from 'lucide-react';
 import { ROUTES } from '@/constants';
+import { useAuthStore } from '@/store/authStore';
 import { useUiStore } from '@/store/uiStore';
 
 const actions = [
@@ -16,8 +17,10 @@ const actions = [
 
 export const CommandPalette = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const open = useUiStore((state) => state.commandPaletteOpen);
   const setOpen = useUiStore((state) => state.setCommandPaletteOpen);
+  const protectedRoutes = new Set([ROUTES.DASHBOARD, ROUTES.RESUMES, ROUTES.JOBS, ROUTES.SETTINGS]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -35,7 +38,18 @@ export const CommandPalette = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open, setOpen]);
 
-  const items = useMemo(() => actions, []);
+  const items = useMemo(
+    () => actions.filter((action) => {
+      if (!isAuthenticated && protectedRoutes.has(action.href)) {
+        return false;
+      }
+      if (isAuthenticated && action.href === ROUTES.LOGIN) {
+        return false;
+      }
+      return true;
+    }),
+    [isAuthenticated, protectedRoutes]
+  );
 
   return (
     <AnimatePresence>
