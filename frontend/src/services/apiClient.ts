@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { API_ENDPOINTS } from '@/constants';
 import type { ApiResponse } from '@/types';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8080';
@@ -72,11 +73,12 @@ class ApiClient {
             }
 
             const response = await axios.post(
-              `${API_BASE_URL}/api/auth/refresh`,
+              `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
               { refreshToken }
             );
 
-            const accessToken = response.data.accessToken || response.data.token;
+            const responseData = response.data?.data ?? response.data;
+            const accessToken = responseData?.accessToken || responseData?.token;
             if (!accessToken) {
               throw new Error('No access token returned from refresh');
             }
