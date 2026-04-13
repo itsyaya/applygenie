@@ -49,6 +49,7 @@ export const CommandPalette = () => {
     }
   }, [open]);
 
+
   const items = useMemo(
     () => actions.filter((action) => {
       if (!isAuthenticated && protectedRoutes.has(action.href)) {
@@ -62,6 +63,7 @@ export const CommandPalette = () => {
     [isAuthenticated]
   );
 
+  
   const filteredItems = useMemo(
     () => {
       const term = query.trim().toLowerCase();
