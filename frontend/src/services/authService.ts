@@ -9,9 +9,14 @@ export const authService = {
       credentials
     );
 
+    const accessToken = response.accessToken || response.token || response.jwt || '';
+    if (!accessToken) {
+      throw new Error('Login succeeded but no access token was returned.');
+    }
+
     return {
       ...response,
-      accessToken: response.accessToken || response.token || response.jwt || '',
+      accessToken,
     };
   },
 
@@ -21,9 +26,14 @@ export const authService = {
       data
     );
 
+    const accessToken = response.accessToken || response.token || response.jwt || '';
+    if (!accessToken) {
+      throw new Error('Registration succeeded but no access token was returned.');
+    }
+
     return {
       ...response,
-      accessToken: response.accessToken || response.token || response.jwt || '',
+      accessToken,
     };
   },
 
