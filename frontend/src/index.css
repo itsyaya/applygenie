@@ -9,6 +9,10 @@
 }
 
 :root {
+  --mx: 50vw;
+  --my: 50vh;
+  --accent-500: 79 70 229;
+  --accent-400: 129 140 248;
   font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,6 +27,16 @@
 
 html {
   @apply scroll-smooth bg-slate-50 text-slate-900;
+}
+
+html[data-accent='emerald'] {
+  --accent-500: 16 185 129;
+  --accent-400: 45 212 191;
+}
+
+html[data-accent='rose'] {
+  --accent-500: 244 63 94;
+  --accent-400: 232 121 249;
 }
 
 body {
@@ -51,9 +65,26 @@ body::before {
   color-scheme: dark;
 }
 
-.dark html,
-.dark body {
+html.dark,
+html.dark body {
   @apply bg-slate-950 text-slate-50;
+}
+
+.mouse-aura {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(420px circle at var(--mx) var(--my), rgba(var(--accent-500), 0.15), transparent 50%),
+    radial-gradient(320px circle at calc(var(--mx) + 100px) calc(var(--my) - 120px), rgba(var(--accent-400), 0.14), transparent 52%);
+  transition: background 80ms linear;
+}
+
+html.dark .mouse-aura {
+  background:
+    radial-gradient(420px circle at var(--mx) var(--my), rgba(var(--accent-500), 0.22), transparent 52%),
+    radial-gradient(320px circle at calc(var(--mx) + 100px) calc(var(--my) - 120px), rgba(var(--accent-400), 0.2), transparent 54%);
 }
 
 /* Scrollbar styling */
@@ -88,7 +119,7 @@ a:focus-visible {
 
 @layer components {
   .app-shell {
-    @apply min-h-screen bg-transparent text-slate-900 dark:text-slate-100;
+    @apply relative z-10 min-h-screen bg-transparent text-slate-900 dark:text-slate-100;
   }
 
   .glass-panel {
@@ -109,8 +140,14 @@ a:focus-visible {
   }
 
   /* Interactive hover states for all links and buttons */
-  a, button {
+  a, button, [role='button'] {
     @apply transition-all duration-200 ease-out;
+  }
+
+  a:hover,
+  button:hover,
+  [role='button']:hover {
+    filter: saturate(1.1);
   }
 
   /* Feature card hover effects */
@@ -139,6 +176,12 @@ a:focus-visible {
   }
 
   /* Professional input focus */
+  input:hover,
+  textarea:hover,
+  select:hover {
+    @apply border-slate-300 dark:border-slate-600;
+  }
+
   input:focus, textarea:focus, select:focus {
     @apply shadow-soft ring-2 ring-indigo-400/50 transition-shadow duration-200;
   }
