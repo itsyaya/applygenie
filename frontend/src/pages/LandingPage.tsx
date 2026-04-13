@@ -29,7 +29,7 @@ export const LandingPage = () => {
       <section className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-28 lg:pt-24">
         <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-medium text-indigo-700 shadow-soft backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-medium text-indigo-700 shadow-soft backdrop-blur hover:shadow-md hover:border-indigo-200 hover:bg-white transition-all duration-300 cursor-pointer">
               <Bot className="h-4 w-4" />
               A premium AI workflow for ambitious job seekers
             </div>
@@ -53,9 +53,13 @@ export const LandingPage = () => {
             </div>
             <div className="grid max-w-2xl gap-4 sm:grid-cols-3">
               {['Fast onboarding', 'JWT-secure access', 'AI-ready workflow'].map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-4 text-sm font-medium text-slate-600 shadow-soft backdrop-blur dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300">
+                <motion.div
+                  key={item}
+                  whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(79, 70, 229, 0.1)' }}
+                  className="rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-4 text-sm font-medium text-slate-600 shadow-soft backdrop-blur dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300 transition-all duration-300 cursor-default hover:border-indigo-200/50 hover:text-slate-700 dark:hover:border-indigo-500/30 dark:hover:text-slate-200"
+                >
                   {item}
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -108,12 +112,12 @@ export const LandingPage = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <motion.div key={feature.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ y: -6 }} viewport={{ once: true, margin: '-120px' }} transition={{ duration: 0.45, delay: index * 0.05 }} className="section-frame group p-7">
-                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-500/15 dark:text-indigo-300">
-                  <Icon className="h-6 w-6" />
+              <motion.div key={feature.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(79, 70, 229, 0.15)' }} viewport={{ once: true, margin: '-120px' }} transition={{ duration: 0.45, delay: index * 0.05 }} className="section-frame group p-7 cursor-pointer">
+                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-violet-600 group-hover:text-white group-hover:shadow-lg group-hover:scale-110 dark:bg-indigo-500/15 dark:text-indigo-300">
+                  <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-125" />
                 </div>
-                <h3 className="mt-6 text-xl font-semibold text-slate-950 dark:text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{feature.description}</p>
+                <h3 className="mt-6 text-xl font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{feature.description}</p>
               </motion.div>
             );
           })}

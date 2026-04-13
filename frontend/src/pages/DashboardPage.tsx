@@ -64,39 +64,45 @@ export const DashboardPage = () => {
     }
 
     return resumesQuery.data.map((resume: Resume, index: number) => (
-      <motion.div key={resume.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.04 }}>
-        <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+      <motion.div key={resume.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.04 }} whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}>
+        <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60 transition-all duration-300 hover:shadow-md hover:border-indigo-200/50 hover:bg-slate-50 dark:hover:border-indigo-500/30 dark:hover:bg-slate-900/80 group cursor-pointer">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
-                <FileText className="h-5 w-5" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 transition-all duration-300 group-hover:bg-indigo-200 group-hover:shadow-md dark:group-hover:bg-indigo-500/25">
+                <FileText className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div>
-                <p className="text-base font-semibold text-slate-950 dark:text-white">{resume.name}</p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Uploaded {formatDate(resume.uploadDate || resume.createdAt)}</p>
+                <p className="text-base font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{resume.name}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 transition-colors duration-300 group-hover:text-slate-600 dark:group-hover:text-slate-300">Uploaded {formatDate(resume.uploadDate || resume.createdAt)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={() => {
-                setEditingResume(resume);
-                setResumeDraft({ name: resume.name, file: null });
-                setResumeModalOpen(true);
-              }}>
-                <FileEdit className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={() => globalThis.open(resume.s3Url, '_blank')}>
-                <ArrowUpRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={async () => {
-                try {
-                  await deleteResume.mutateAsync(resume.id);
-                  showToast.success('Resume deleted');
-                } catch {
-                  showToast.error('Could not delete resume');
-                }
-              }}>
-                <Trash2 className="h-4 w-4 text-rose-500" />
-              </Button>
+            <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={() => {
+                  setEditingResume(resume);
+                  setResumeDraft({ name: resume.name, file: null });
+                  setResumeModalOpen(true);
+                }}>
+                  <FileEdit className="h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={() => globalThis.open(resume.s3Url, '_blank')}>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={async () => {
+                  try {
+                    await deleteResume.mutateAsync(resume.id);
+                    showToast.success('Resume deleted');
+                  } catch {
+                    showToast.error('Could not delete resume');
+                  }
+                }}>
+                  <Trash2 className="h-4 w-4 text-rose-500" />
+                </Button>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -150,43 +156,49 @@ export const DashboardPage = () => {
       const badgeVariant = job.status === 'applied' ? 'success' : job.status === 'rejected' ? 'danger' : 'default';
 
       return (
-        <motion.div key={job.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
-          <div className="h-full rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+        <motion.div key={job.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }} whileHover={{ scale: 1.01, transition: { duration: 0.2 } }} className="group">
+          <div className="h-full rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60 transition-all duration-300 hover:shadow-lg hover:border-indigo-200/50 hover:bg-slate-50 dark:hover:border-indigo-500/30 dark:hover:bg-slate-900/80 cursor-pointer">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{job.title}</h3>
-                  <Badge variant={badgeVariant}>{job.status}</Badge>
+                  <h3 className="text-lg font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{job.title}</h3>
+                  <motion.div whileHover={{ scale: 1.08 }}>
+                    <Badge variant={badgeVariant}>{job.status}</Badge>
+                  </motion.div>
                 </div>
-                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{job.company}</p>
+                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{job.company}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={() => {
-                  setEditingJob(job);
-                  setJobDraft({ title: job.title, company: job.company, description: job.description, url: job.url || '' });
-                  setJobModalOpen(true);
-                }}>
-                  <FileEdit className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={async () => {
-                  try {
-                    await deleteJob.mutateAsync(job.id);
-                    showToast.success('Job deleted');
-                  } catch {
-                    showToast.error('Could not delete job');
-                  }
-                }}>
-                  <Trash2 className="h-4 w-4 text-rose-500" />
-                </Button>
+              <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="outline" size="icon" onClick={() => {
+                    setEditingJob(job);
+                    setJobDraft({ title: job.title, company: job.company, description: job.description, url: job.url || '' });
+                    setJobModalOpen(true);
+                  }}>
+                    <FileEdit className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="outline" size="icon" onClick={async () => {
+                    try {
+                      await deleteJob.mutateAsync(job.id);
+                      showToast.success('Job deleted');
+                    } catch {
+                      showToast.error('Could not delete job');
+                    }
+                  }}>
+                    <Trash2 className="h-4 w-4 text-rose-500" />
+                  </Button>
+                </motion.div>
               </div>
             </div>
-            <p className="mt-4 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{job.description}</p>
+            <p className="mt-4 line-clamp-3 text-sm leading-7 text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{job.description}</p>
             <div className="mt-5 flex items-center justify-between gap-4">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Saved {formatDate(job.savedDate || job.createdAt)}</p>
               {job.url ? (
-                <a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                <motion.a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors duration-300" whileHover={{ x: 4 }}>
                   Visit posting <ArrowUpRight className="ml-1 h-4 w-4" />
-                </a>
+                </motion.a>
               ) : null}
             </div>
           </div>
@@ -411,14 +423,21 @@ export const DashboardPage = () => {
         <div className="space-y-5">
           <Input label="Resume name" placeholder="Senior Product Designer Resume" value={resumeDraft.name} onChange={(event) => setResumeDraft((current) => ({ ...current, name: event.target.value }))} />
           {editingResume === null ? (
-            <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-900/50">
+            <motion.div
+              className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-6 text-center transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/5"
+              whileHover={{ scale: 1.01 }}
+            >
               <input id="resume-file" type="file" accept=".pdf" className="hidden" onChange={(event) => setResumeDraft((current) => ({ ...current, file: event.target.files?.[0] || null }))} />
-              <label htmlFor="resume-file" className="cursor-pointer text-sm text-slate-600 dark:text-slate-300">{resumeDraft.file?.name || 'Click to attach a PDF resume'}</label>
-            </div>
+              <label htmlFor="resume-file" className="cursor-pointer text-sm text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">{resumeDraft.file?.name || 'Click to attach a PDF resume'}</label>
+            </motion.div>
           ) : null}
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={resetResumeForm}>Cancel</Button>
-            <Button className="flex-1" onClick={handleResumeSubmit} isLoading={createResume.isPending || updateResume.isPending}>{editingResume ? 'Save Changes' : 'Upload Resume'}</Button>
+          <div className="flex gap-3 pt-4">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" className="w-full" onClick={resetResumeForm}>Cancel</Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button className="w-full" onClick={handleResumeSubmit} isLoading={createResume.isPending || updateResume.isPending}>{editingResume ? 'Save Changes' : 'Upload Resume'}</Button>
+            </motion.div>
           </div>
         </div>
       </Modal>
@@ -430,11 +449,22 @@ export const DashboardPage = () => {
           <Input label="Posting URL" placeholder="https://company.com/jobs/123" value={jobDraft.url} onChange={(event) => setJobDraft((current) => ({ ...current, url: event.target.value }))} />
           <div>
             <label htmlFor="job-description" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
-            <textarea id="job-description" value={jobDraft.description} onChange={(event) => setJobDraft((current) => ({ ...current, description: event.target.value }))} rows={6} className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-indigo-500/20" placeholder="Paste the job description here" />
+            <textarea
+              id="job-description"
+              value={jobDraft.description}
+              onChange={(event) => setJobDraft((current) => ({ ...current, description: event.target.value }))}
+              rows={6}
+              className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:ring-indigo-500/20"
+              placeholder="Paste the job description here"
+            />
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={resetJobForm}>Cancel</Button>
-            <Button className="flex-1" onClick={handleJobSubmit} isLoading={createJob.isPending || updateJob.isPending}>{editingJob ? 'Save Changes' : 'Save Job'}</Button>
+          <div className="flex gap-3 pt-4">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" className="w-full" onClick={resetJobForm}>Cancel</Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button className="w-full" onClick={handleJobSubmit} isLoading={createJob.isPending || updateJob.isPending}>{editingJob ? 'Save Changes' : 'Save Job'}</Button>
+            </motion.div>
           </div>
         </div>
       </Modal>

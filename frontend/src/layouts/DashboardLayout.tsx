@@ -34,15 +34,16 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon, label, href, isActive }: SidebarItemProps) => (
   <Link to={href}>
     <motion.div
-      className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200 ${
+      className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200 cursor-pointer group ${
         isActive
           ? 'bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500 text-white shadow-soft'
-          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+          : 'text-slate-700 hover:bg-slate-100 hover:shadow-sm dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:shadow-md'
       }`}
-      whileHover={{ x: 4 }}
+      whileHover={!isActive ? { x: 6, transition: { duration: 0.2 } } : { transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.98 }}
     >
-      {icon}
-      {label ? <span className="text-sm font-medium">{label}</span> : null}
+      <span className="transition-transform duration-200 group-hover:scale-110">{icon}</span>
+      {label ? <span className="text-sm font-medium transition-all duration-200">{label}</span> : null}
     </motion.div>
   </Link>
 );
