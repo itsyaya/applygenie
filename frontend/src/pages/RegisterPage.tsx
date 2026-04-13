@@ -81,13 +81,19 @@ export const RegisterPage = () => {
       <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-violet-200/25 blur-3xl" />
       <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} className="section-frame hidden p-10 lg:block">
-          <div className="rounded-[28px] bg-gradient-to-br from-indigo-600 via-violet-600 to-sky-500 p-8 text-white shadow-panel">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm">
+          <motion.div
+            className="rounded-[28px] bg-gradient-to-br from-indigo-600 via-violet-600 to-sky-500 p-8 text-white shadow-panel transition-all duration-300 hover:shadow-lg"
+            whileHover={{ y: -4 }}
+          >
+            <motion.div
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm transition-all duration-200 hover:bg-white/15"
+              whileHover={{ scale: 1.04 }}
+            >
               <Sparkles className="h-4 w-4" /> Launch faster
-            </div>
+            </motion.div>
             <h1 className="mt-8 font-display text-5xl font-semibold leading-tight">Create a workspace that makes job hunting feel sharp again.</h1>
             <p className="mt-5 max-w-md text-base leading-8 text-white/85">Track resumes, save job descriptions, and prepare for AI-powered content generation in one premium product surface.</p>
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="section-frame p-8 sm:p-10">
@@ -166,7 +172,10 @@ export const RegisterPage = () => {
 
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
             Already have an account?{' '}
-            <Link to={ROUTES.LOGIN} className="font-semibold text-indigo-600 hover:text-indigo-700">
+            <Link
+              to={ROUTES.LOGIN}
+              className="font-semibold text-indigo-600 transition-colors duration-200 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
               Sign in
             </Link>
           </p>
