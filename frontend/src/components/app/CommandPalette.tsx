@@ -7,12 +7,12 @@ import { useAuthStore } from '@/store/authStore';
 import { useUiStore } from '@/store/uiStore';
 
 const actions = [
-  { label: 'Go to home', href: ROUTES.HOME, icon: Home },
-  { label: 'Open dashboard', href: ROUTES.DASHBOARD, icon: Sparkles },
-  { label: 'View resumes', href: ROUTES.RESUMES, icon: FileText },
-  { label: 'View jobs', href: ROUTES.JOBS, icon: Briefcase },
-  { label: 'Settings', href: ROUTES.SETTINGS, icon: Settings },
-  { label: 'Login', href: ROUTES.LOGIN, icon: LogIn },
+  { label: 'Go to home', description: 'Landing page and product overview', href: ROUTES.HOME, icon: Home, keywords: ['home', 'landing', 'overview'] },
+  { label: 'Open dashboard', description: 'Your job search workspace', href: ROUTES.DASHBOARD, icon: Sparkles, keywords: ['dashboard', 'workspace', 'overview'] },
+  { label: 'View resumes', description: 'Manage uploaded resume versions', href: ROUTES.RESUMES, icon: FileText, keywords: ['resume', 'cv', 'library'] },
+  { label: 'View jobs', description: 'Search and track saved opportunities', href: ROUTES.JOBS, icon: Briefcase, keywords: ['jobs', 'roles', 'applications'] },
+  { label: 'Settings', description: 'Adjust product preferences', href: ROUTES.SETTINGS, icon: Settings, keywords: ['settings', 'preferences', 'account'] },
+  { label: 'Login', description: 'Authenticate to access dashboard', href: ROUTES.LOGIN, icon: LogIn, keywords: ['signin', 'auth', 'login'] },
 ];
 
 const protectedRoutes: Set<string> = new Set([ROUTES.DASHBOARD, ROUTES.RESUMES, ROUTES.JOBS, ROUTES.SETTINGS]);
@@ -29,7 +29,8 @@ export const CommandPalette = () => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        setOpen(!open);
+        const nextState = !useUiStore.getState().commandPaletteOpen;
+        setOpen(nextState);
       }
 
       if (event.key === 'Escape') {
@@ -39,7 +40,7 @@ export const CommandPalette = () => {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [open, setOpen]);
+  }, [setOpen]);
 
   useEffect(() => {
     if (open) {
@@ -62,7 +63,16 @@ export const CommandPalette = () => {
   );
 
   const filteredItems = useMemo(
-    () => items.filter((item) => item.label.toLowerCase().includes(query.trim().toLowerCase())),
+    () => {
+      const term = query.trim().toLowerCase();
+      if (!term) {
+        return items;
+      }
+      return items.filter((item) => {
+        const haystack = [item.label, item.description, ...item.keywords].join(' ').toLowerCase();
+        return haystack.includes(term);
+      });
+    },
     [items, query]
   );
 
@@ -170,10 +180,18 @@ export const CommandPalette = () => {
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
                       <Icon className="h-4 w-4" />
                     </div>
-                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{item.label}</span>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{item.label}</p>
+                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                    </div>
                   </button>
                 );
               })}
+            </div>
+            <div className="flex items-center justify-between border-t border-slate-200 px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-slate-400 dark:border-slate-800">
+              <p>Arrows to navigate</p>
+              <p>Enter to open</p>
+              <p>Esc to close</p>
             </div>
           </motion.div>
         </>
