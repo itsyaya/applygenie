@@ -1,89 +1,135 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Bot, Briefcase, FileText, Lock, Sparkles, Wand2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { ArrowRight, BriefcaseBusiness, Layers3, ShieldCheck, Sparkles, WandSparkles } from 'lucide-react';
 import { ROUTES } from '@/constants';
 
-const features = [
-  { icon: FileText, title: 'Resume management', description: 'Keep every tailored resume version organized, searchable, and ready to send.' },
-  { icon: Briefcase, title: 'Job brief intelligence', description: 'Capture job descriptions in seconds and turn them into structured application context.' },
-  { icon: Wand2, title: 'AI drafting workflow', description: 'Prepare for cover letter and outreach generation with a UI built for high-conviction writing.' },
-  { icon: Lock, title: 'Private by design', description: 'JWT-protected sessions and a trustworthy product feel from first click.' },
+const offerings = [
+  {
+    icon: Layers3,
+    title: 'Workspace Intelligence',
+    description: 'Unify resumes, jobs, and context in one streamlined command center.',
+  },
+  {
+    icon: WandSparkles,
+    title: 'Assisted Content Flow',
+    description: 'Move from brief to tailored application content with less manual friction.',
+  },
+  {
+    icon: BriefcaseBusiness,
+    title: 'Pipeline Clarity',
+    description: 'Track opportunities with structured data and measurable progress signals.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Security First',
+    description: 'Protected sessions and secure account flows with production-grade standards.',
+  },
 ];
 
-const steps = [
-  { number: '01', title: 'Create your workspace', description: 'Sign in once and centralize all your application assets in one clean operating system.' },
-  { number: '02', title: 'Add resumes and jobs', description: 'Store every resume version and job brief so your applications stay tailored and fast.' },
-  { number: '03', title: 'Launch smarter applications', description: 'Use future AI generation and tracking to move through the pipeline with confidence.' },
+const aboutPillars = [
+  'Purpose-built for professionals applying at speed',
+  'Designed for confidence, clarity, and consistency',
+  'Scalable UI architecture with reusable patterns',
 ];
+
+const sectionReveal = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-120px' },
+  transition: { duration: 0.5, ease: 'easeOut' },
+} as const;
+
+interface SectionTitleProps {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+const SectionTitle = ({ eyebrow, title, description }: SectionTitleProps) => (
+  <div className="mx-auto max-w-2xl text-center">
+    <p className="text-xs font-semibold uppercase tracking-[0.32em] text-sky-600 dark:text-sky-300">{eyebrow}</p>
+    <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl dark:text-white">{title}</h2>
+    <p className="mt-4 text-base leading-8 text-slate-600 dark:text-slate-300">{description}</p>
+  </div>
+);
 
 export const LandingPage = () => {
   const navigate = useNavigate();
-  const [heroPointer, setHeroPointer] = useState({ x: 50, y: 50 });
+  const [pointer, setPointer] = useState({ x: 50, y: 50 });
 
-  const handleHeroMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+  const onHeroMove = (event: MouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
-    setHeroPointer({ x, y });
+    setPointer({ x, y });
   };
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-50 [mask-image:radial-gradient(circle_at_center,black,transparent_78%)]" />
-      <motion.div aria-hidden className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-indigo-300/30 blur-3xl" animate={{ y: [0, -16, 0] }} transition={{ duration: 9, repeat: Infinity }} />
-      <motion.div aria-hidden className="absolute right-0 top-20 h-80 w-80 rounded-full bg-sky-300/25 blur-3xl" animate={{ y: [0, 18, 0] }} transition={{ duration: 11, repeat: Infinity }} />
+    <div className="relative overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(14,165,233,0.14),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(59,130,246,0.16),transparent_34%),radial-gradient(circle_at_50%_92%,rgba(14,165,233,0.10),transparent_46%)]" />
 
       <section
-        className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-28 lg:pt-24"
-        onMouseMove={handleHeroMouseMove}
-        onMouseLeave={() => setHeroPointer({ x: 50, y: 50 })}
+        className="relative mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 lg:px-8 lg:pt-24"
+        onMouseMove={onHeroMove}
+        onMouseLeave={() => setPointer({ x: 50, y: 50 })}
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[36px]"
+          className="pointer-events-none absolute inset-0 rounded-[38px]"
           style={{
-            background: `radial-gradient(460px circle at ${heroPointer.x}% ${heroPointer.y}%, rgba(99, 102, 241, 0.2), transparent 58%)`,
+            background: `radial-gradient(480px circle at ${pointer.x}% ${pointer.y}%, rgba(56, 189, 248, 0.22), transparent 62%)`,
           }}
         />
-        <div className="relative grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-          <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
+
+        <div className="relative grid gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <motion.div
-              className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-medium text-indigo-700 shadow-soft backdrop-blur transition-all duration-300 hover:border-indigo-200 hover:bg-white hover:shadow-md"
+              className="inline-flex items-center gap-2 rounded-full border border-sky-200/70 bg-white/85 px-4 py-2 text-sm font-medium text-sky-700 shadow-sm backdrop-blur dark:border-sky-500/30 dark:bg-slate-900/80 dark:text-sky-200"
               whileHover={{ y: -2, scale: 1.02 }}
             >
-              <Bot className="h-4 w-4" />
-              A premium AI workflow for ambitious job seekers
+              <Sparkles className="h-4 w-4" />
+              New era application workflow
             </motion.div>
-            <div className="space-y-5">
-              <h1 className="font-display text-5xl font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
-                Your AI Job
-                <span className="block text-gradient">Application Assistant</span>
-              </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-                Automate resume organization, capture job context, and prepare tailored application content in a product designed to feel precise, fast, and trustworthy.
-              </p>
+
+            <h1 className="mt-7 font-display text-5xl font-semibold leading-[1.03] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
+              Design-Level Precision
+              <span className="block bg-gradient-to-r from-sky-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent">for Every Job Application</span>
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+              ApplyGenie gives you a refined workspace for managing resumes, capturing role context, and preparing high-conviction submissions with confidence.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+              <motion.button
+                type="button"
+                onClick={() => navigate(ROUTES.REGISTER)}
+                className="group inline-flex items-center justify-center rounded-full bg-gradient-to-r from-sky-600 to-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-[0_10px_28px_rgba(2,132,199,0.28)] transition-all duration-300 hover:shadow-[0_16px_34px_rgba(2,132,199,0.36)]"
+                whileHover={{ y: -3, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Get Started for Free
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={() => navigate(ROUTES.LOGIN)}
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white/90 px-8 py-3.5 text-base font-semibold text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-white hover:shadow-lg dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-slate-500"
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Explore Product
+              </motion.button>
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button size="lg" onClick={() => navigate(ROUTES.REGISTER)}>
-                  Get Started for Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button size="lg" variant="outline" onClick={() => navigate(ROUTES.LOGIN)}>
-                  Login
-                </Button>
-              </motion.div>
-            </div>
-            <div className="grid max-w-2xl gap-4 sm:grid-cols-3">
-              {['Fast onboarding', 'JWT-secure access', 'AI-ready workflow'].map((item) => (
+
+            <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
+              {['Fast setup', 'Interactive UI', 'Secure sessions'].map((item) => (
                 <motion.div
                   key={item}
-                  whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(79, 70, 229, 0.1)' }}
-                  className="rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-4 text-sm font-medium text-slate-600 shadow-soft backdrop-blur dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300 transition-all duration-300 cursor-default hover:border-indigo-200/50 hover:text-slate-700 dark:hover:border-indigo-500/30 dark:hover:text-slate-200"
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  className="rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 text-center text-sm font-medium text-slate-700 transition-all duration-300 hover:border-sky-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-sky-500/30"
                 >
                   {item}
                 </motion.div>
@@ -91,119 +137,196 @@ export const LandingPage = () => {
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.08 }} className="section-frame relative overflow-hidden p-5 sm:p-6">
-            <div className="absolute inset-0 bg-brand-radial opacity-70" />
-            <div className="relative space-y-5">
-              <div className="glass-panel rounded-[26px] p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Live dashboard</p>
-                    <h2 className="mt-3 font-display text-2xl font-semibold text-slate-950 dark:text-white">Career operating system</h2>
-                  </div>
-                  <div className="rounded-2xl bg-indigo-500/10 p-3 text-indigo-600 dark:text-indigo-300">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
+          <motion.div initial={{ opacity: 0, x: 26 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.07 }}>
+            <motion.div
+              className="relative overflow-hidden rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.14)] dark:border-slate-800 dark:bg-slate-900"
+              whileHover={{ y: -6 }}
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_45%)]" />
+              <div className="relative space-y-4">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="rounded-2xl border border-slate-200 bg-white/95 p-5 transition-all duration-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/95"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Live Workspace</p>
+                  <p className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">Application Command Hub</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">Instant visibility into resumes, opportunities, and application readiness.</p>
+                </motion.div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <motion.div
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                  >
+                    <div className="h-28 rounded-xl bg-gradient-to-br from-sky-200 via-cyan-200 to-blue-200 transition-transform duration-300 hover:scale-105 dark:from-sky-500/30 dark:via-cyan-500/25 dark:to-blue-500/25" />
+                    <p className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">Role Brief Snapshot</p>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                  >
+                    <div className="h-28 rounded-xl bg-gradient-to-br from-blue-200 via-sky-200 to-cyan-200 transition-transform duration-300 hover:scale-105 dark:from-blue-500/30 dark:via-sky-500/25 dark:to-cyan-500/25" />
+                    <p className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">Resume Variant Board</p>
+                  </motion.div>
                 </div>
+
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="rounded-2xl border border-cyan-200 bg-cyan-50/80 p-5 transition-all duration-300 hover:shadow-lg dark:border-cyan-500/30 dark:bg-cyan-500/10"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-700 dark:text-cyan-300">Performance Signal</p>
+                  <p className="mt-2 text-3xl font-semibold text-cyan-700 dark:text-cyan-200">+71% Response Lift</p>
+                  <p className="mt-2 text-sm text-cyan-800/80 dark:text-cyan-200/80">Teams adopting structured, interactive workflows move faster with less error.</p>
+                </motion.div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="glass-panel rounded-[24px] p-5">
-                  <p className="text-sm font-semibold text-slate-950 dark:text-white">Resume scorecards</p>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Versioned, searchable, and connected to job briefs.</p>
-                </div>
-                <div className="rounded-[24px] bg-slate-950 p-5 text-white shadow-soft">
-                  <p className="text-sm font-semibold">AI generation</p>
-                  <p className="mt-2 text-sm text-slate-300">Cover letter workflows with strong visual feedback.</p>
-                </div>
-              </div>
-              <motion.div
-                whileHover={{ y: -4, boxShadow: '0 20px 30px rgba(16, 185, 129, 0.25)' }}
-                className="rounded-[24px] border border-emerald-200/60 bg-emerald-50/80 p-5 dark:border-emerald-500/30 dark:bg-emerald-500/10"
-              >
-                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Interaction score</p>
-                <p className="mt-2 text-3xl font-display font-semibold text-emerald-700 dark:text-emerald-300">+88%</p>
-                <p className="mt-2 text-sm text-emerald-700/80 dark:text-emerald-200/80">Users engage longer when every surface responds to hover and motion.</p>
-              </motion.div>
-              <div className="glass-panel rounded-[24px] p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950 dark:text-white">Applications velocity</p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Organized pipelines, modern UX, and cleaner decisions.</p>
-                  </div>
-                  <div className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Live</div>
-                </div>
-              </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      <section id="features" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.34em] text-indigo-500">Features</p>
-          <h2 className="mt-4 font-display text-4xl font-semibold text-slate-950 dark:text-white">Built to feel like a real startup product</h2>
-          <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">Every surface is designed for speed, confidence, and the next wave of AI-assisted application workflows.</p>
-        </div>
+      <section id="features" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <motion.div {...sectionReveal}>
+          <SectionTitle
+            eyebrow="Core Features"
+            title="Everything needed for a modern job application engine"
+            description="Each module is purpose-built for speed, accuracy, and a premium interaction layer."
+          />
+        </motion.div>
+
         <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
+          {offerings.map((item, index) => {
+            const Icon = item.icon;
             return (
-              <motion.div key={feature.title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(79, 70, 229, 0.15)' }} viewport={{ once: true, margin: '-120px' }} transition={{ duration: 0.45, delay: index * 0.05 }} className="section-frame group p-7 cursor-pointer">
-                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-violet-600 group-hover:text-white group-hover:shadow-lg group-hover:scale-110 dark:bg-indigo-500/15 dark:text-indigo-300">
-                  <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-125" />
+              <motion.article
+                key={item.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ duration: 0.45, delay: index * 0.06 }}
+                whileHover={{ y: -8, scale: 1.01 }}
+                className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:border-sky-300 hover:shadow-[0_16px_40px_rgba(14,165,233,0.16)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-sky-500/30"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700 transition-all duration-300 group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-sky-500 group-hover:to-blue-600 group-hover:text-white dark:bg-sky-500/15 dark:text-sky-300">
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-6 text-xl font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300 transition-colors duration-300 group-hover:text-slate-700 dark:group-hover:text-slate-200">{feature.description}</p>
-              </motion.div>
+                <h3 className="mt-5 text-xl font-semibold text-slate-950 transition-colors duration-300 group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-300">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{item.description}</p>
+                <button
+                  type="button"
+                  className="mt-5 inline-flex items-center text-sm font-semibold text-sky-700 transition-all duration-300 hover:tracking-wide dark:text-sky-300"
+                >
+                  Learn more
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </button>
+              </motion.article>
             );
           })}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="section-frame overflow-hidden p-8 sm:p-10 lg:p-12">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.34em] text-indigo-500">How it works</p>
-              <h2 className="mt-4 font-display text-4xl font-semibold text-slate-950 dark:text-white">A polished application workflow in three steps</h2>
-              <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">ApplyGenie compresses the messy parts of job hunting into a calm, high-signal workspace.</p>
-            </div>
-            <div className="space-y-4">
-              {steps.map((step, index) => (
-                <motion.div key={step.number} initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.45, delay: index * 0.08 }} className="glass-panel rounded-[24px] p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold tracking-[0.24em] text-white dark:bg-white dark:text-slate-950">{step.number}</div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{step.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
-                    </div>
-                  </div>
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <motion.div {...sectionReveal} className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-sky-600 dark:text-sky-300">About ApplyGenie</p>
+            <h3 className="mt-5 font-display text-3xl font-semibold text-slate-950 dark:text-white">Built by product minds obsessed with quality execution.</h3>
+            <p className="mt-5 text-base leading-8 text-slate-600 dark:text-slate-300">
+              We redesigned the application process into a structured experience where every decision is visible, every action is fast, and every interaction feels crafted.
+            </p>
+            <div className="mt-8 space-y-3">
+              {aboutPillars.map((pillar) => (
+                <motion.div
+                  key={pillar}
+                  whileHover={{ x: 6 }}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:border-sky-300 hover:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-500/30"
+                >
+                  {pillar}
                 </motion.div>
               ))}
             </div>
           </div>
-        </div>
+
+          <motion.div
+            whileHover={{ y: -6 }}
+            className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-sky-600 via-cyan-500 to-blue-600 p-8 text-white shadow-[0_24px_60px_rgba(14,165,233,0.34)] dark:border-cyan-400/30"
+          >
+            <div className="absolute -right-14 -top-16 h-48 w-48 rounded-full bg-white/20 blur-3xl" />
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/80">Platform Snapshot</p>
+              <h3 className="mt-5 font-display text-3xl font-semibold">From intent to action in one interface.</h3>
+              <p className="mt-4 text-base leading-8 text-white/85">Ship faster applications with cleaner systems and less cognitive overhead.</p>
+              <a
+                href="#features"
+                className="mt-8 inline-flex items-center text-sm font-semibold text-white transition-all duration-300 hover:translate-x-1 hover:underline"
+              >
+                Explore feature stack
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </div>
+          </motion.div>
+        </motion.div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="section-frame overflow-hidden px-6 py-14 sm:px-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.34em] text-indigo-500">Ready to move faster?</p>
-          <h2 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-semibold text-slate-950 dark:text-white">Launch a cleaner, smarter job search workflow today</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">From polished onboarding to AI-ready drafting space, ApplyGenie is designed to feel trusted from the first session.</p>
-          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-            <Button size="lg" onClick={() => navigate(ROUTES.REGISTER)}>Create Account</Button>
-            <Button size="lg" variant="outline" onClick={() => navigate(ROUTES.LOGIN)}>Sign In</Button>
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <motion.div
+          {...sectionReveal}
+          className="relative overflow-hidden rounded-[34px] border border-slate-200 bg-white px-8 py-14 text-center shadow-sm sm:px-14 dark:border-slate-800 dark:bg-slate-900"
+        >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.20),transparent_45%)]" />
+          <div className="relative">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-sky-600 dark:text-sky-300">Ready to begin?</p>
+            <h2 className="mx-auto mt-4 max-w-3xl font-display text-3xl font-semibold text-slate-950 sm:text-4xl dark:text-white">Launch a more professional application experience today.</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">No clutter, no guesswork. Just modern workflows designed to help you ship high-quality applications at speed.</p>
+            <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <motion.button
+                type="button"
+                onClick={() => navigate(ROUTES.REGISTER)}
+                className="group inline-flex items-center rounded-full bg-gradient-to-r from-sky-600 to-blue-600 px-8 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:shadow-[0_14px_32px_rgba(14,165,233,0.35)]"
+                whileHover={{ y: -3, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Create Account
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={() => navigate(ROUTES.LOGIN)}
+                className="inline-flex items-center rounded-full border border-slate-300 bg-white px-8 py-3.5 text-base font-semibold text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500"
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Sign In
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       </section>
 
-      <footer className="border-t border-slate-200/80 bg-white/60 py-10 backdrop-blur dark:border-slate-800 dark:bg-slate-950/60">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p>© 2026 ApplyGenie. Built for modern application workflows.</p>
-          <div className="flex gap-6">
-            <a href="#features" className="transition hover:text-slate-900 dark:hover:text-white">Features</a>
-            <a href="#" className="transition hover:text-slate-900 dark:hover:text-white">Privacy</a>
-            <a href="#" className="transition hover:text-slate-900 dark:hover:text-white">Contact</a>
+      <footer className="border-t border-slate-200 bg-white/80 py-12 dark:border-slate-800 dark:bg-slate-950/80">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+          <div>
+            <p className="font-display text-2xl font-semibold text-slate-950 dark:text-white">ApplyGenie</p>
+            <p className="mt-3 max-w-md text-sm leading-7 text-slate-600 dark:text-slate-300">A premium interface for professionals who want precision, speed, and consistent application outcomes.</p>
           </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Product</p>
+            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              <a href="#features" className="inline-block transition-all duration-300 hover:translate-x-1 hover:text-sky-700 hover:underline dark:hover:text-sky-300">Features</a>
+              <p className="transition-all duration-300 hover:translate-x-1 hover:text-sky-700 dark:hover:text-sky-300">Security</p>
+              <p className="transition-all duration-300 hover:translate-x-1 hover:text-sky-700 dark:hover:text-sky-300">Performance</p>
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Company</p>
+            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              <p className="transition-all duration-300 hover:translate-x-1 hover:text-sky-700 dark:hover:text-sky-300">About</p>
+              <p className="transition-all duration-300 hover:translate-x-1 hover:text-sky-700 dark:hover:text-sky-300">Contact</p>
+              <p className="transition-all duration-300 hover:translate-x-1 hover:text-sky-700 dark:hover:text-sky-300">Privacy</p>
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto mt-10 max-w-7xl border-t border-slate-200 px-4 pt-6 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:px-6 lg:px-8">
+          © 2026 ApplyGenie. All rights reserved.
         </div>
       </footer>
     </div>
