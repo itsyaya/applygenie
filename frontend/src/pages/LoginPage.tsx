@@ -70,15 +70,24 @@ export const LoginPage = () => {
           className="hidden rounded-[32px] bg-slate-950 p-10 text-white shadow-panel lg:flex lg:flex-col lg:justify-between"
         >
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80">
+            <motion.div
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 transition-all duration-200 hover:bg-white/15"
+              whileHover={{ scale: 1.04 }}
+            >
               <Sparkles className="h-4 w-4" /> Premium career workflow
-            </div>
+            </motion.div>
             <h1 className="mt-8 font-display text-5xl font-semibold leading-tight">Move through applications with more signal and less chaos.</h1>
             <p className="mt-5 max-w-md text-base leading-8 text-slate-300">ApplyGenie gives you a polished workspace for resumes, job briefs, and AI-assisted writing so every step feels intentional.</p>
           </div>
           <div className="grid gap-4">
             {['Resume libraries', 'Secure JWT auth', 'AI-ready drafting'].map((item) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-200">{item}</div>
+              <motion.div
+                key={item}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-200 transition-all duration-200 hover:border-white/20 hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/10"
+                whileHover={{ x: 4 }}
+              >
+                {item}
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -137,13 +146,16 @@ export const LoginPage = () => {
             </div>
           </form>
 
-          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
+          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100/50 hover:shadow-sm dark:hover:border-slate-700 dark:hover:bg-slate-900/80 dark:hover:shadow-md dark:hover:shadow-indigo-500/10">
             Demo credentials: demo@example.com / Demo@123
           </div>
 
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
             Don&apos;t have an account?{' '}
-            <Link to={ROUTES.REGISTER} className="font-semibold text-indigo-600 hover:text-indigo-700">
+            <Link
+              to={ROUTES.REGISTER}
+              className="font-semibold text-indigo-600 transition-colors duration-200 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
               Create one
             </Link>
           </p>
