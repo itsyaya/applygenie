@@ -449,11 +449,22 @@ export const DashboardPage = () => {
           <Input label="Posting URL" placeholder="https://company.com/jobs/123" value={jobDraft.url} onChange={(event) => setJobDraft((current) => ({ ...current, url: event.target.value }))} />
           <div>
             <label htmlFor="job-description" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
-            <textarea id="job-description" value={jobDraft.description} onChange={(event) => setJobDraft((current) => ({ ...current, description: event.target.value }))} rows={6} className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-indigo-500/20" placeholder="Paste the job description here" />
+            <textarea
+              id="job-description"
+              value={jobDraft.description}
+              onChange={(event) => setJobDraft((current) => ({ ...current, description: event.target.value }))}
+              rows={6}
+              className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:ring-indigo-500/20"
+              placeholder="Paste the job description here"
+            />
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={resetJobForm}>Cancel</Button>
-            <Button className="flex-1" onClick={handleJobSubmit} isLoading={createJob.isPending || updateJob.isPending}>{editingJob ? 'Save Changes' : 'Save Job'}</Button>
+          <div className="flex gap-3 pt-4">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" className="w-full" onClick={resetJobForm}>Cancel</Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button className="w-full" onClick={handleJobSubmit} isLoading={createJob.isPending || updateJob.isPending}>{editingJob ? 'Save Changes' : 'Save Job'}</Button>
+            </motion.div>
           </div>
         </div>
       </Modal>
