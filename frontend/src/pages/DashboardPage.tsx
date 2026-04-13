@@ -423,14 +423,21 @@ export const DashboardPage = () => {
         <div className="space-y-5">
           <Input label="Resume name" placeholder="Senior Product Designer Resume" value={resumeDraft.name} onChange={(event) => setResumeDraft((current) => ({ ...current, name: event.target.value }))} />
           {editingResume === null ? (
-            <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-900/50">
+            <motion.div
+              className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-6 text-center transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/5"
+              whileHover={{ scale: 1.01 }}
+            >
               <input id="resume-file" type="file" accept=".pdf" className="hidden" onChange={(event) => setResumeDraft((current) => ({ ...current, file: event.target.files?.[0] || null }))} />
-              <label htmlFor="resume-file" className="cursor-pointer text-sm text-slate-600 dark:text-slate-300">{resumeDraft.file?.name || 'Click to attach a PDF resume'}</label>
-            </div>
+              <label htmlFor="resume-file" className="cursor-pointer text-sm text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400">{resumeDraft.file?.name || 'Click to attach a PDF resume'}</label>
+            </motion.div>
           ) : null}
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={resetResumeForm}>Cancel</Button>
-            <Button className="flex-1" onClick={handleResumeSubmit} isLoading={createResume.isPending || updateResume.isPending}>{editingResume ? 'Save Changes' : 'Upload Resume'}</Button>
+          <div className="flex gap-3 pt-4">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" className="w-full" onClick={resetResumeForm}>Cancel</Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button className="w-full" onClick={handleResumeSubmit} isLoading={createResume.isPending || updateResume.isPending}>{editingResume ? 'Save Changes' : 'Upload Resume'}</Button>
+            </motion.div>
           </div>
         </div>
       </Modal>
