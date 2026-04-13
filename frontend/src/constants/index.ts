@@ -12,10 +12,10 @@ export const ROUTES = {
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/api/auth/login',
-    REGISTER: '/api/auth/register',
-    REFRESH: '/api/auth/refresh',
-    LOGOUT: '/api/auth/logout',
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    REFRESH: '/auth/refresh-token',
+    LOGOUT: '/auth/logout',
   },
   RESUMES: {
     LIST: '/api/resumes',
