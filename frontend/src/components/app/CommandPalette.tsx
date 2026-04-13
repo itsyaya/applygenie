@@ -20,7 +20,7 @@ export const CommandPalette = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const open = useUiStore((state) => state.commandPaletteOpen);
   const setOpen = useUiStore((state) => state.setCommandPaletteOpen);
-  const protectedRoutes = new Set([ROUTES.DASHBOARD, ROUTES.RESUMES, ROUTES.JOBS, ROUTES.SETTINGS]);
+  const protectedRoutes: Set<string> = new Set([ROUTES.DASHBOARD, ROUTES.RESUMES, ROUTES.JOBS, ROUTES.SETTINGS]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
