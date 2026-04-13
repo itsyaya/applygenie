@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient';
 import { API_ENDPOINTS } from '@/constants';
+import { useAuthStore } from '@/store/authStore';
 import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types';
 
 export const authService = {
@@ -43,7 +44,10 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        await apiClient.post(`${API_ENDPOINTS.AUTH.LOGOUT}?userId=${userId}`);
+      }
     } catch (error) {
       // Continue logout even if request fails
       console.error('Logout request failed:', error);
