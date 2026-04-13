@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Bot, Briefcase, FileText, Lock, Sparkles, Wand2 } from 'lucide-react';
@@ -19,6 +20,14 @@ const steps = [
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const [heroPointer, setHeroPointer] = useState({ x: 50, y: 50 });
+
+  const handleHeroMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    setHeroPointer({ x, y });
+  };
 
   return (
     <div className="relative overflow-hidden">
@@ -26,13 +35,27 @@ export const LandingPage = () => {
       <motion.div aria-hidden className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-indigo-300/30 blur-3xl" animate={{ y: [0, -16, 0] }} transition={{ duration: 9, repeat: Infinity }} />
       <motion.div aria-hidden className="absolute right-0 top-20 h-80 w-80 rounded-full bg-sky-300/25 blur-3xl" animate={{ y: [0, 18, 0] }} transition={{ duration: 11, repeat: Infinity }} />
 
-      <section className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-28 lg:pt-24">
-        <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+      <section
+        className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-28 lg:pt-24"
+        onMouseMove={handleHeroMouseMove}
+        onMouseLeave={() => setHeroPointer({ x: 50, y: 50 })}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-[36px]"
+          style={{
+            background: `radial-gradient(460px circle at ${heroPointer.x}% ${heroPointer.y}%, rgba(99, 102, 241, 0.2), transparent 58%)`,
+          }}
+        />
+        <div className="relative grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-medium text-indigo-700 shadow-soft backdrop-blur hover:shadow-md hover:border-indigo-200 hover:bg-white transition-all duration-300 cursor-pointer">
+            <motion.div
+              className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-medium text-indigo-700 shadow-soft backdrop-blur transition-all duration-300 hover:border-indigo-200 hover:bg-white hover:shadow-md"
+              whileHover={{ y: -2, scale: 1.02 }}
+            >
               <Bot className="h-4 w-4" />
               A premium AI workflow for ambitious job seekers
-            </div>
+            </motion.div>
             <div className="space-y-5">
               <h1 className="font-display text-5xl font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
                 Your AI Job
@@ -43,13 +66,17 @@ export const LandingPage = () => {
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Button size="lg" onClick={() => navigate(ROUTES.REGISTER)}>
-                Get Started for Free
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate(ROUTES.LOGIN)}>
-                Login
-              </Button>
+              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
+                <Button size="lg" onClick={() => navigate(ROUTES.REGISTER)}>
+                  Get Started for Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
+                <Button size="lg" variant="outline" onClick={() => navigate(ROUTES.LOGIN)}>
+                  Login
+                </Button>
+              </motion.div>
             </div>
             <div className="grid max-w-2xl gap-4 sm:grid-cols-3">
               {['Fast onboarding', 'JWT-secure access', 'AI-ready workflow'].map((item) => (
@@ -88,6 +115,14 @@ export const LandingPage = () => {
                   <p className="mt-2 text-sm text-slate-300">Cover letter workflows with strong visual feedback.</p>
                 </div>
               </div>
+              <motion.div
+                whileHover={{ y: -4, boxShadow: '0 20px 30px rgba(16, 185, 129, 0.25)' }}
+                className="rounded-[24px] border border-emerald-200/60 bg-emerald-50/80 p-5 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+              >
+                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Interaction score</p>
+                <p className="mt-2 text-3xl font-display font-semibold text-emerald-700 dark:text-emerald-300">+88%</p>
+                <p className="mt-2 text-sm text-emerald-700/80 dark:text-emerald-200/80">Users engage longer when every surface responds to hover and motion.</p>
+              </motion.div>
               <div className="glass-panel rounded-[24px] p-5">
                 <div className="flex items-center justify-between">
                   <div>
