@@ -115,9 +115,33 @@ export const DashboardPage = () => {
     }
 
     if (!filteredJobs.length) {
+      const hasAnyJobs = (jobsQuery.data?.length ?? 0) > 0;
       return (
         <div className="xl:col-span-2">
-          <EmptyState icon={<Briefcase className="h-12 w-12" />} title="No saved jobs" description="Add a job description to build a high-context application workflow." action={<Button onClick={() => setJobModalOpen(true)}>Save Job</Button>} />
+          <EmptyState
+            icon={<Briefcase className="h-12 w-12" />}
+            title={hasAnyJobs ? 'No matching jobs' : 'No saved jobs'}
+            description={
+              hasAnyJobs
+                ? 'Try a different search phrase or clear the status filter to see more results.'
+                : 'Add a job description to build a high-context application workflow.'
+            }
+            action={
+              hasAnyJobs ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearch('');
+                    setStatusFilter('all');
+                  }}
+                >
+                  Clear filters
+                </Button>
+              ) : (
+                <Button onClick={() => setJobModalOpen(true)}>Save Job</Button>
+              )
+            }
+          />
         </div>
       );
     }
@@ -184,16 +208,27 @@ export const DashboardPage = () => {
   };
 
   const handleResumeSubmit = async () => {
+    const trimmedName = resumeDraft.name.trim();
+
+    if (!trimmedName) {
+      showToast.error('Please enter a resume name');
+      return;
+    }
+
     try {
       if (editingResume) {
-        await updateResume.mutateAsync({ id: editingResume.id, name: resumeDraft.name });
+        await updateResume.mutateAsync({ id: editingResume.id, name: trimmedName });
         showToast.success('Resume updated');
       } else {
         if (!resumeDraft.file) {
           showToast.error('Please attach a PDF resume');
           return;
         }
-        await createResume.mutateAsync({ name: resumeDraft.name, file: resumeDraft.file });
+        if (resumeDraft.file.type && resumeDraft.file.type !== 'application/pdf') {
+          showToast.error('Only PDF files are supported');
+          return;
+        }
+        await createResume.mutateAsync({ name: trimmedName, file: resumeDraft.file });
         showToast.success('Resume uploaded');
       }
       resetResumeForm();
@@ -203,12 +238,34 @@ export const DashboardPage = () => {
   };
 
   const handleJobSubmit = async () => {
+    const payload = {
+      title: jobDraft.title.trim(),
+      company: jobDraft.company.trim(),
+      description: jobDraft.description.trim(),
+      url: jobDraft.url.trim(),
+    };
+
+    if (!payload.title || !payload.company || !payload.description) {
+      showToast.error('Title, company, and description are required');
+      return;
+    }
+
+    if (payload.url) {
+      try {
+        // Validate URL without being overly strict about host/path combinations.
+        new URL(payload.url);
+      } catch {
+        showToast.error('Please enter a valid job posting URL');
+        return;
+      }
+    }
+
     try {
       if (editingJob) {
-        await updateJob.mutateAsync({ id: editingJob.id, payload: { title: jobDraft.title, company: jobDraft.company, description: jobDraft.description, url: jobDraft.url } });
+        await updateJob.mutateAsync({ id: editingJob.id, payload });
         showToast.success('Job updated');
       } else {
-        await createJob.mutateAsync(jobDraft);
+        await createJob.mutateAsync(payload);
         showToast.success('Job saved');
       }
       resetJobForm();
