@@ -291,12 +291,12 @@ export const DashboardPage = () => {
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="section-frame overflow-hidden p-6 sm:p-8">
         <div className="grid gap-8 xl:grid-cols-[1.12fr_0.88fr] xl:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-indigo-500">Overview</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-600 dark:text-sky-300">Overview</p>
             <h1 className="mt-4 font-display text-4xl font-semibold text-slate-950 dark:text-white">Operate your entire job search from one premium dashboard.</h1>
             <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">Manage resumes, track opportunities, and prepare for AI-generated application content with a workflow that feels precise and fast.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[24px] bg-slate-950 p-5 text-white shadow-soft">
+            <div className="rounded-[24px] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-5 text-white shadow-soft">
               <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Next up</p>
               <p className="mt-3 text-xl font-semibold">Generate tailored cover letters</p>
             </div>
@@ -324,7 +324,7 @@ export const DashboardPage = () => {
                           <p className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">{value}</p>
                           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.description}</p>
                         </div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
                           <Icon className="h-5 w-5" />
                         </div>
                       </div>
@@ -349,13 +349,13 @@ export const DashboardPage = () => {
                 <Plus className="mr-2 h-4 w-4" /> Add Resume
               </Button>
             </div>
-            <div className="rounded-[24px] border border-dashed border-indigo-200 bg-indigo-50/60 p-5 dark:border-indigo-500/20 dark:bg-indigo-500/10">
+            <div className="rounded-[24px] border border-dashed border-sky-200 bg-sky-50/70 p-5 dark:border-sky-500/20 dark:bg-sky-500/10">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">Drag and drop upload area</p>
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Prepared for polished file upload interactions. Use the modal below to attach a PDF right now.</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft dark:bg-slate-900">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-sky-700 shadow-soft dark:bg-slate-900 dark:text-sky-300">
                   <UploadCloud className="h-5 w-5" />
                 </div>
               </div>
@@ -394,12 +394,12 @@ export const DashboardPage = () => {
         <CardHeader title="Job description manager" description="Search, filter, create, edit, and keep opportunity context close to your writing workflow." />
         <CardContent>
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-1 items-center gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-1 items-center gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3 transition-all duration-300 hover:border-sky-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900 dark:hover:border-sky-500/30">
               <Search className="h-4 w-4 text-slate-400" />
               <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by title, company, description, or URL" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100" />
             </div>
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-2 rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+              <div className="inline-flex items-center gap-2 rounded-[22px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-all duration-300 hover:border-sky-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-500/30">
                 <Filter className="h-4 w-4" />
                 <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | Job['status'])} className="bg-transparent outline-none">
                   <option value="all">All statuses</option>
