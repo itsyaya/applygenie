@@ -8,11 +8,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500 text-white shadow-soft hover:shadow-glow',
-        secondary: 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900',
-        destructive: 'bg-rose-600 text-white hover:bg-rose-700',
-        outline: 'border border-slate-200 bg-white/80 text-slate-900 hover:border-indigo-200 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800',
-        ghost: 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800',
+        default: 'bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500 text-white shadow-soft hover:shadow-glow hover:from-indigo-700 hover:via-violet-700 hover:to-sky-600 active:shadow-sm active:scale-95',
+        secondary: 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-md dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 active:scale-95',
+        destructive: 'bg-rose-600 text-white hover:bg-rose-700 hover:shadow-md active:scale-95',
+        outline: 'border border-slate-200 bg-white/80 text-slate-900 hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:border-indigo-500/50 active:scale-95',
+        ghost: 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100 active:scale-95',
       },
       size: {
         default: 'h-11 px-5 py-2.5 text-sm',
@@ -39,8 +39,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, isLoading, children, disabled, ...props }, ref) => {
     return (
       <motion.div
-        whileHover={{ scale: 1.015, y: -1 }}
-        whileTap={{ scale: 0.985 }}
+        whileHover={{ scale: disabled ? 1 : 1.02, y: disabled ? 0 : -2 }}
+        whileTap={{ scale: disabled ? 1 : 0.98 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className={cn(
           'inline-flex',
@@ -58,6 +58,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <motion.div
               className="mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"
               animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            />
+          )}
+          {children}
+        </button>
+      </motion.div>
+    );
+  }
+);
+
+Button.displayName = 'Button';
+
+export { Button, buttonVariants };
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
             />
           )}
