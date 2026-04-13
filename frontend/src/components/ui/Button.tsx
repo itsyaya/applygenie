@@ -71,16 +71,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            />
-          )}
-          {children}
-        </button>
-      </motion.div>
-    );
-  }
-);
-
-Button.displayName = 'Button';
-
-export { Button, buttonVariants };
