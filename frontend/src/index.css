@@ -92,11 +92,11 @@ a:focus-visible {
   }
 
   .glass-panel {
-    @apply border border-white/50 bg-white/75 backdrop-blur-xl shadow-panel dark:border-white/10 dark:bg-slate-900/75;
+    @apply border border-white/50 bg-white/75 backdrop-blur-xl shadow-panel dark:border-white/10 dark:bg-slate-900/75 transition-all duration-300 hover:border-indigo-200/50 hover:shadow-lg dark:hover:border-indigo-500/30 dark:hover:bg-slate-900/90;
   }
 
   .section-frame {
-    @apply rounded-[28px] border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80;
+    @apply rounded-[28px] border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80 transition-all duration-300 hover:shadow-md hover:border-slate-200/100 dark:hover:border-slate-700/100;
   }
 
   .hero-grid {
@@ -106,6 +106,70 @@ a:focus-visible {
 
   .text-gradient {
     @apply bg-gradient-to-r from-indigo-600 via-violet-500 to-sky-500 bg-clip-text text-transparent;
+  }
+
+  /* Interactive hover states for all links and buttons */
+  a, button {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* Feature card hover effects */
+  .feature-card {
+    @apply rounded-[24px] border border-slate-200/80 bg-white/70 p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/70;
+  }
+
+  /* Interactive stat card */
+  .stat-card {
+    @apply rounded-[24px] border border-slate-200/80 bg-white/90 p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900/80;
+  }
+
+  /* Badge with hover */
+  .badge-interactive {
+    @apply rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-all duration-200 hover:scale-105 hover:shadow-md;
+  }
+
+  /* Interactive form elements */
+  .form-input {
+    @apply transition-all duration-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400;
+  }
+
+  /* Smooth link underline animation */
+  .link-hover {
+    @apply relative inline-block overflow-hidden after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-indigo-600 after:transition-transform after:duration-300 after:origin-right after:scale-x-0 hover:after:origin-left hover:after:scale-x-100;
+  }
+
+  /* Professional input focus */
+  input:focus, textarea:focus, select:focus {
+    @apply shadow-soft ring-2 ring-indigo-400/50 transition-shadow duration-200;
+  }
+
+  /* Professional text hover */
+  .text-hover {
+    @apply transition-colors duration-200 hover:text-indigo-600 dark:hover:text-indigo-400;
+  }
+
+  /* Icon animation */
+  .icon-hover {
+    @apply transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12;
+  }
+
+  /* Smooth card transforms */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+  }
+
+  /* Overlay hover effect */
+  .overlay-hover::after {
+    @apply absolute inset-0 bg-gradient-to-t from-indigo-600/0 to-indigo-600/0 transition-all duration-300 pointer-events-none;
+  }
+
+  .overlay-hover:hover::after {
+    @apply from-indigo-600/5 to-transparent;
+  }
+
+  /* Smooth focus rings */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-indigo-400;
   }
 }
 
