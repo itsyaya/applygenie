@@ -64,39 +64,45 @@ export const DashboardPage = () => {
     }
 
     return resumesQuery.data.map((resume: Resume, index: number) => (
-      <motion.div key={resume.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.04 }}>
-        <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+      <motion.div key={resume.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.04 }} whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}>
+        <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60 transition-all duration-300 hover:shadow-md hover:border-indigo-200/50 hover:bg-slate-50 dark:hover:border-indigo-500/30 dark:hover:bg-slate-900/80 group cursor-pointer">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
-                <FileText className="h-5 w-5" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 transition-all duration-300 group-hover:bg-indigo-200 group-hover:shadow-md dark:group-hover:bg-indigo-500/25">
+                <FileText className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div>
-                <p className="text-base font-semibold text-slate-950 dark:text-white">{resume.name}</p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Uploaded {formatDate(resume.uploadDate || resume.createdAt)}</p>
+                <p className="text-base font-semibold text-slate-950 dark:text-white transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{resume.name}</p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 transition-colors duration-300 group-hover:text-slate-600 dark:group-hover:text-slate-300">Uploaded {formatDate(resume.uploadDate || resume.createdAt)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={() => {
-                setEditingResume(resume);
-                setResumeDraft({ name: resume.name, file: null });
-                setResumeModalOpen(true);
-              }}>
-                <FileEdit className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={() => globalThis.open(resume.s3Url, '_blank')}>
-                <ArrowUpRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={async () => {
-                try {
-                  await deleteResume.mutateAsync(resume.id);
-                  showToast.success('Resume deleted');
-                } catch {
-                  showToast.error('Could not delete resume');
-                }
-              }}>
-                <Trash2 className="h-4 w-4 text-rose-500" />
-              </Button>
+            <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={() => {
+                  setEditingResume(resume);
+                  setResumeDraft({ name: resume.name, file: null });
+                  setResumeModalOpen(true);
+                }}>
+                  <FileEdit className="h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={() => globalThis.open(resume.s3Url, '_blank')}>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="icon" onClick={async () => {
+                  try {
+                    await deleteResume.mutateAsync(resume.id);
+                    showToast.success('Resume deleted');
+                  } catch {
+                    showToast.error('Could not delete resume');
+                  }
+                }}>
+                  <Trash2 className="h-4 w-4 text-rose-500" />
+                </Button>
+              </motion.div>
             </div>
           </div>
         </div>
