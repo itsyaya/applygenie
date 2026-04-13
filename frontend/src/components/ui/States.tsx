@@ -22,7 +22,7 @@ export const EmptyState = ({
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
-    className={cn('flex flex-col items-center justify-center rounded-[28px] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-12 text-center dark:border-slate-800 dark:bg-slate-900/60', className)}
+    className={cn('flex flex-col items-center justify-center rounded-[28px] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-12 text-center transition-all duration-300 hover:border-sky-300 hover:bg-white hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-sky-500/35', className)}
   >
     {icon && <div className="mb-4 text-slate-400">{icon}</div>}
     <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
@@ -43,7 +43,7 @@ export const LoadingState = ({ message = 'Loading...' }: LoadingStateProps) => (
     className="flex flex-col items-center justify-center py-12"
   >
     <motion.div
-      className="h-8 w-8 border-4 border-gray-200 border-t-indigo-600 rounded-full"
+      className="h-8 w-8 border-4 border-gray-200 border-t-sky-600 rounded-full"
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
     />
@@ -66,7 +66,7 @@ export const ErrorState = ({
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
-    className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 dark:border-rose-900/40 dark:bg-rose-950/20"
+    className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 shadow-sm dark:border-rose-900/40 dark:bg-rose-950/20"
   >
     <div className="flex items-start gap-4">
       <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
