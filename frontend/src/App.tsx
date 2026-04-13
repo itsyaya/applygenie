@@ -8,12 +8,12 @@ import { CommandPalette } from '@/components/app/CommandPalette';
 import { AppearanceDock } from '@/components/app/AppearanceDock';
 import { MouseAura } from '@/components/app/MouseAura';
 
-const LandingPage = lazy(() => import('@/pages/LandingPage').then((module) => ({ default: module.LandingPage })));
-const LoginPage = lazy(() => import('@/pages/LoginPage').then((module) => ({ default: module.LoginPage })));
-const RegisterPage = lazy(() => import('@/pages/RegisterPage').then((module) => ({ default: module.RegisterPage })));
-const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((module) => ({ default: module.DashboardPage })));
-const MainLayout = lazy(() => import('@/layouts/MainLayout').then((module) => ({ default: module.MainLayout })));
-const DashboardLayout = lazy(() => import('@/layouts/DashboardLayout').then((module) => ({ default: module.DashboardLayout })));
+const LandingPage = lazy(() => import('@/pages/LandingPage.tsx').then((module) => ({ default: module.LandingPage })));
+const LoginPage = lazy(() => import('@/pages/LoginPage.tsx').then((module) => ({ default: module.LoginPage })));
+const RegisterPage = lazy(() => import('@/pages/RegisterPage.tsx').then((module) => ({ default: module.RegisterPage })));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage.tsx').then((module) => ({ default: module.DashboardPage })));
+const MainLayout = lazy(() => import('@/layouts/MainLayout.tsx').then((module) => ({ default: module.MainLayout })));
+const DashboardLayout = lazy(() => import('@/layouts/DashboardLayout.tsx').then((module) => ({ default: module.DashboardLayout })));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
