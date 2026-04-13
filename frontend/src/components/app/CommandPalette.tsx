@@ -144,7 +144,7 @@ export const CommandPalette = () => {
             initial={{ opacity: 0, y: 12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            className="fixed left-1/2 top-[18vh] z-[100] w-[min(720px,calc(100vw-2rem))] -translate-x-1/2 overflow-hidden rounded-[28px] border border-white/60 bg-white/95 shadow-panel backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95"
+            className="fixed left-1/2 top-[18vh] z-[100] w-[min(720px,calc(100vw-2rem))] -translate-x-1/2 overflow-hidden rounded-[28px] border border-slate-200 bg-white/95 shadow-[0_20px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95"
           >
             <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800">
               <Search className="h-4 w-4 text-slate-400" />
@@ -173,13 +173,13 @@ export const CommandPalette = () => {
                     type="button"
                     onMouseEnter={() => setSelectedIndex(index)}
                     onClick={() => executeAction(item.href)}
-                    className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                    className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all duration-300 ${
                       selectedIndex === index
-                        ? 'bg-slate-100 dark:bg-slate-800'
+                        ? 'bg-sky-50 dark:bg-sky-500/10'
                         : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
                       <Icon className="h-4 w-4" />
                     </div>
                     <div>
