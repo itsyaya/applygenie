@@ -77,12 +77,12 @@ export const RegisterPage = () => {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
       <div className="pointer-events-none absolute inset-0 hero-grid opacity-50" />
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-violet-200/25 blur-3xl" />
+      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-sky-200/30 blur-3xl" />
+      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl" />
       <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} className="section-frame hidden p-10 lg:block">
           <motion.div
-            className="rounded-[28px] bg-gradient-to-br from-indigo-600 via-violet-600 to-sky-500 p-8 text-white shadow-panel transition-all duration-300 hover:shadow-lg"
+            className="rounded-[28px] bg-gradient-to-br from-sky-600 via-cyan-500 to-blue-600 p-8 text-white shadow-panel transition-all duration-300 hover:shadow-lg"
             whileHover={{ y: -4 }}
           >
             <motion.div
@@ -97,7 +97,7 @@ export const RegisterPage = () => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="section-frame p-8 sm:p-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-indigo-500">Create account</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600 dark:text-sky-300">Create account</p>
           <h2 className="mt-4 font-display text-3xl font-semibold text-slate-950 dark:text-white">Start using ApplyGenie</h2>
           <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">Build your personal application workspace with secure access and polished tools from day one.</p>
 
@@ -174,7 +174,7 @@ export const RegisterPage = () => {
             Already have an account?{' '}
             <Link
               to={ROUTES.LOGIN}
-              className="font-semibold text-indigo-600 transition-colors duration-200 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+              className="font-semibold text-sky-700 transition-colors duration-300 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
             >
               Sign in
             </Link>

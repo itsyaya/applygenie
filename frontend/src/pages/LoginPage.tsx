@@ -61,29 +61,31 @@ export const LoginPage = () => {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
       <div className="pointer-events-none absolute inset-0 hero-grid opacity-50" />
-      <div className="absolute left-0 top-10 h-64 w-64 rounded-full bg-indigo-200/30 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-sky-200/30 blur-3xl" />
-      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="pointer-events-none absolute -left-16 top-12 h-72 w-72 rounded-full bg-sky-300/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 right-0 h-80 w-80 rounded-full bg-cyan-300/25 blur-3xl" />
+
+      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
-          className="hidden rounded-[32px] bg-slate-950 p-10 text-white shadow-panel lg:flex lg:flex-col lg:justify-between"
+          className="hidden overflow-hidden rounded-[32px] border border-slate-200 bg-white/85 p-10 shadow-[0_20px_56px_rgba(15,23,42,0.14)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/85 lg:flex lg:flex-col lg:justify-between"
         >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.20),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(6,182,212,0.20),transparent_30%)]" />
           <div>
             <motion.div
-              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 transition-all duration-200 hover:bg-white/15"
+              className="relative inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-medium text-sky-700 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-sky-500/30 dark:bg-slate-900 dark:text-sky-300"
               whileHover={{ scale: 1.04 }}
             >
               <Sparkles className="h-4 w-4" /> Premium career workflow
             </motion.div>
-            <h1 className="mt-8 font-display text-5xl font-semibold leading-tight">Move through applications with more signal and less chaos.</h1>
-            <p className="mt-5 max-w-md text-base leading-8 text-slate-300">ApplyGenie gives you a polished workspace for resumes, job briefs, and AI-assisted writing so every step feels intentional.</p>
+            <h1 className="relative mt-8 font-display text-5xl font-semibold leading-tight text-slate-950 dark:text-white">Move from job search chaos to confident execution.</h1>
+            <p className="relative mt-5 max-w-md text-base leading-8 text-slate-600 dark:text-slate-300">Sign in to a modern workspace where every interaction is designed for focus, speed, and clarity.</p>
           </div>
-          <div className="grid gap-4">
+          <div className="relative grid gap-4">
             {['Resume libraries', 'Secure JWT auth', 'AI-ready drafting'].map((item) => (
               <motion.div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-200 transition-all duration-200 hover:border-white/20 hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/10"
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-sky-500/30"
                 whileHover={{ x: 4 }}
               >
                 {item}
@@ -93,10 +95,10 @@ export const LoginPage = () => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="section-frame relative overflow-hidden p-8 sm:p-10">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500" />
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-600 via-cyan-500 to-blue-600" />
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-indigo-500">Welcome back</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600 dark:text-sky-300">Welcome back</p>
               <h2 className="mt-4 font-display text-3xl font-semibold text-slate-950 dark:text-white">Sign in to ApplyGenie</h2>
               <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">Access your dashboard, job briefs, and resume workspace.</p>
             </div>
@@ -119,7 +121,7 @@ export const LoginPage = () => {
                 error={errors.email}
                 className="pl-11"
               />
-              <Mail className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" />
+              <Mail className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" aria-hidden />
             </div>
 
             <div>
@@ -135,7 +137,7 @@ export const LoginPage = () => {
                 error={errors.password}
                 className="pl-11"
               />
-              <LockKeyhole className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" />
+              <LockKeyhole className="pointer-events-none relative -mt-[3.35rem] ml-4 h-4 w-4 text-slate-400" aria-hidden />
             </div>
 
             <div className="pt-4">
@@ -146,7 +148,7 @@ export const LoginPage = () => {
             </div>
           </form>
 
-          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400 transition-all duration-200 hover:border-slate-300 hover:bg-slate-100/50 hover:shadow-sm dark:hover:border-slate-700 dark:hover:bg-slate-900/80 dark:hover:shadow-md dark:hover:shadow-indigo-500/10">
+          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 text-xs text-slate-500 transition-all duration-300 hover:border-sky-300 hover:bg-white hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400 dark:hover:border-sky-500/30 dark:hover:bg-slate-900/80">
             Demo credentials: demo@example.com / Demo@123
           </div>
 
@@ -154,7 +156,7 @@ export const LoginPage = () => {
             Don&apos;t have an account?{' '}
             <Link
               to={ROUTES.REGISTER}
-              className="font-semibold text-indigo-600 transition-colors duration-200 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+              className="font-semibold text-sky-700 transition-colors duration-300 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
             >
               Create one
             </Link>
