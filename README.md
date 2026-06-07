@@ -5,18 +5,10 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue?style=for-the-badge&logo=mysql)
 ![JWT](https://img.shields.io/badge/JWT-Security-black?style=for-the-badge&logo=json-web-tokens)
 
-ApplyGenie AI Backend is a production-level, scalable backend system for an AI-powered job application assistant.
+ApplyGenie AI Backend is a scalable backend system for an AI-powered job application assistant.
 Built with Java 17 and Spring Boot, it provides secure authentication, resume and job description management, and lays the groundwork for seamless AI integrations to generate tailored career content.
 
 ## UI Screenshots
-
-### Light Mode
-
-| Landing Page | Dashboard |
-| :---: | :---: |
-| ![Landing Page Light](./assets/landing.png) | ![Dashboard Light](./assets/dashboard.png) |
-| **Login** | **Register** |
-| ![Login Light](./assets/login.png) | ![Register Light](./assets/register.png) |
 
 ### Dark Mode
 
@@ -39,14 +31,14 @@ Built with Java 17 and Spring Boot, it provides secure authentication, resume an
 
 - **Core**: Java 17, Spring Boot 3.2.4
 - **Web**: Spring Web (REST APIs)
-- **Database**: MySQL, Spring Data JPA, Hibernate
+- **Database**: MySQL, Spring Data JPA
 - **Security**: Spring Security, JJWT (io.jsonwebtoken)
 - **Utilities**: Lombok for boilerplate reduction
 - **Build Tool**: Maven
 
 ## 📂 Project Structure
 
-The application follows a clean layered architecture principles to ensure separation of concerns and maintainability:
+The application follows a this layered architecture principles to ensure separation of concerns and maintainability:
 
 ```text
 src/main/java/com/applygenie
@@ -65,11 +57,10 @@ src/main/java/com/applygenie
 
 ### Prerequisites
 
-Ensure you have the following installed on your local machine:
+on local machine:
 - [Java Development Kit (JDK) 22](https://adoptium.net/) (Strictly required for build stability/Lombok)
-- [Apache Maven](https://maven.apache.org/) (or use the included Maven wrapper)
-- [PostgreSQL Server](https://www.postgresql.org/) (Production choice)
-- Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code)
+- [Apache Maven](https://maven.apache.org/) 
+- [PostgreSQL Server](https://www.postgresql.org/) 
 
 ### 1. Database Setup
 
@@ -108,7 +99,7 @@ You can use the Maven wrapper to build and run the application from the root dir
 ./mvnw spring-boot:run
 ```
 
-The server will start, usually on `http://localhost:8080`.
+usually on `http://localhost:8080`.
 
 ## 🧪 Testing
 
