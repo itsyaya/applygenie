@@ -10,14 +10,12 @@ import com.applygenie.exception.custom.UnauthorizedAccessException;
 import com.applygenie.repository.GeneratedContentRepository;
 import com.applygenie.repository.JobDescriptionRepository;
 import com.applygenie.repository.ResumeRepository;
-import com.applygenie.repository.UserRepository;
-import com.applygenie.security.CustomUserDetails;
+import com.applygenie.security.CurrentUserService;
 import com.applygenie.service.AiGenerationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +24,23 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final GeneratedContentRepository generatedContentRepository;
     private final ResumeRepository resumeRepository;
     private final JobDescriptionRepository jobDescriptionRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final com.applygenie.service.UsageService usageService;
     private final com.applygenie.service.AiWorkerService aiWorkerService;
 
     @Override
     @org.springframework.transaction.annotation.Transactional
     public GeneratedContent generateContent(GenerationRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         if (!usageService.canGenerate(currentUser)) {
             throw new IllegalStateException("AI generation limit reached for your plan. Please upgrade to Pro.");
         }
 
-        Resume resume = resumeRepository.findById(request.getResumeId())
+        Resume resume = resumeRepository.findById(request.resumeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
-        JobDescription jobDescription = jobDescriptionRepository.findById(request.getJobId())
+        JobDescription jobDescription = jobDescriptionRepository.findById(request.jobId())
                 .orElseThrow(() -> new ResourceNotFoundException("Job Description not found"));
 
         if (!resume.getUser().getId().equals(currentUser.getId()) ||
@@ -67,17 +65,8 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     }
 
     @Override
-    public List<GeneratedContent> getUserGeneratedContents() {
-        return generatedContentRepository.findByUserId(getCurrentUser().getId());
-    }
-
-    private User getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof CustomUserDetails userDetails) {
-            String username = userDetails.getUsername();
-            return userRepository.findByEmail(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-        }
-        throw new RuntimeException("Unauthorized");
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Page<GeneratedContent> getUserGeneratedContents(Pageable pageable) {
+        return generatedContentRepository.findByUserId(currentUserService.getCurrentUser().getId(), pageable);
     }
 }

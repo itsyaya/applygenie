@@ -1,8 +1,8 @@
 package com.applygenie.service.impl;
 
+import com.applygenie.config.properties.OpenAiProperties;
 import com.applygenie.service.AIService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,18 +12,12 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
 
 @Service
 @RequiredArgsConstructor
 public class OpenAIServiceImpl implements AIService {
 
-    @Value("${openai.api-key}")
-    private String apiKey;
-
+    private final OpenAiProperties openAiProperties;
     private final RestTemplate restTemplate;
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -50,7 +44,7 @@ public class OpenAIServiceImpl implements AIService {
     private String callOpenAI(String prompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.setBearerAuth(openAiProperties.apiKey());
 
         Map<String, Object> body = new HashMap<>();
         body.put("model", "gpt-4o");

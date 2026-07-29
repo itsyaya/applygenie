@@ -2,13 +2,20 @@ package com.applygenie.controller;
 
 import com.applygenie.dto.request.LoginRequest;
 import com.applygenie.dto.request.RegisterRequest;
+import com.applygenie.dto.request.TokenRefreshRequest;
 import com.applygenie.dto.response.ApiResponse;
 import com.applygenie.dto.response.AuthResponse;
+import com.applygenie.dto.response.TokenRefreshResponse;
+import com.applygenie.exception.custom.ResourceNotFoundException;
+import com.applygenie.security.CustomUserDetails;
+import com.applygenie.security.JwtUtils;
 import com.applygenie.service.AuthService;
+import com.applygenie.service.RefreshTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,46 +23,42 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final com.applygenie.security.JwtUtils jwtUtils;
-    private final com.applygenie.service.RefreshTokenService refreshTokenService;
+    private final JwtUtils jwtUtils;
+    private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "User registered successfully", response));
+                .body(ApiResponse.success("User registered successfully", response));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<com.applygenie.dto.response.TokenRefreshResponse>> refreshToken(
-            @Valid @RequestBody com.applygenie.dto.request.TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+    public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(
+            @Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.refreshToken();
 
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(com.applygenie.entity.RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtUtils.generateToken(new com.applygenie.security.CustomUserDetails(user));
-                    return ResponseEntity.ok(new ApiResponse<>(true, "Token refreshed successfully",
-                            com.applygenie.dto.response.TokenRefreshResponse.builder()
-                                    .accessToken(token)
-                                    .refreshToken(requestRefreshToken)
-                                    .build()));
+                    String token = jwtUtils.generateToken(new CustomUserDetails(user));
+                    return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully",
+                            TokenRefreshResponse.of(token, requestRefreshToken)));
                 })
-                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found or invalid"));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logoutUser(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal com.applygenie.security.CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<Void>> logoutUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         refreshTokenService.deleteByUserId(userDetails.getUser().getId());
-        return ResponseEntity.ok(new ApiResponse<>(true, "Log out successful", null));
+        return ResponseEntity.ok(ApiResponse.success("Log out successful"));
     }
 }

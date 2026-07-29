@@ -1,17 +1,8 @@
 package com.applygenie.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public record AuthResponse(String token, String refreshToken, String email, String type) {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuthResponse {
-    private String token;
-    private String refreshToken;
-    private String email;
-    private String type = "Bearer";
+    public static AuthResponse of(String token, String refreshToken, String email) {
+        return new AuthResponse(token, refreshToken, email, "Bearer");
+    }
 }

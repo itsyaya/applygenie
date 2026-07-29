@@ -1,8 +1,8 @@
 package com.applygenie.service.impl;
 
+import com.applygenie.config.properties.AwsS3Properties;
 import com.applygenie.service.StorageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -11,16 +11,13 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.util.UUID;
-import io.github.resilience4j.retry.annotation.Retry;
 
 @Service
 @RequiredArgsConstructor
 public class S3StorageServiceImpl implements StorageService {
 
     private final S3Client s3Client;
-
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
+    private final AwsS3Properties awsS3Properties;
 
     @Override
     @io.github.resilience4j.retry.annotation.Retry(name = "s3")
@@ -28,7 +25,7 @@ public class S3StorageServiceImpl implements StorageService {
         String fileKey = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(awsS3Properties.bucket())
                 .key(fileKey)
                 .contentType(file.getContentType())
                 .build();
@@ -40,6 +37,6 @@ public class S3StorageServiceImpl implements StorageService {
 
     @Override
     public void deleteFile(String fileKey) {
-        s3Client.deleteObject(builder -> builder.bucket(bucketName).key(fileKey));
+        s3Client.deleteObject(builder -> builder.bucket(awsS3Properties.bucket()).key(fileKey));
     }
 }

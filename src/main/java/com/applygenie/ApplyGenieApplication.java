@@ -1,13 +1,12 @@
 package com.applygenie;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@EnableRetry
+@ConfigurationPropertiesScan
 @EnableAsync
 public class ApplyGenieApplication {
 

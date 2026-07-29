@@ -2,10 +2,10 @@ package com.applygenie.service;
 
 import com.applygenie.dto.request.GenerationRequest;
 import com.applygenie.entity.GeneratedContent;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AiGenerationService {
     GeneratedContent generateContent(GenerationRequest request);
-    List<GeneratedContent> getUserGeneratedContents();
+    Page<GeneratedContent> getUserGeneratedContents(Pageable pageable);
 }

@@ -1,16 +1,8 @@
 package com.applygenie.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public record TokenRefreshResponse(String accessToken, String refreshToken, String tokenType) {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TokenRefreshResponse {
-    private String accessToken;
-    private String refreshToken;
-    private String tokenType = "Bearer";
+    public static TokenRefreshResponse of(String accessToken, String refreshToken) {
+        return new TokenRefreshResponse(accessToken, refreshToken, "Bearer");
+    }
 }
