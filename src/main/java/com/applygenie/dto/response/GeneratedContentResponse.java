@@ -11,6 +11,7 @@ public record GeneratedContentResponse(
         String coverLetter,
         String cvSummary,
         GenerationStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

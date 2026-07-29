@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record ResumeResponse(
         Long id,
         String fileName,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

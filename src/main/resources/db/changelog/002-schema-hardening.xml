@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2" author="applygenie">
+        <comment>Add updated_at auditing column to all tables; add missing created_at to refresh_tokens</comment>
+
+        <addColumn tableName="users">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="resumes">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="job_descriptions">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="generated_contents">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="refresh_tokens">
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="3" author="applygenie">
+        <comment>Add missing indexes on generated_contents (was previously unindexed on all foreign keys)</comment>
+
+        <createIndex tableName="generated_contents" indexName="idx_generated_content_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="generated_contents" indexName="idx_generated_content_created">
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex tableName="generated_contents" indexName="idx_generated_content_resume">
+            <column name="resume_id"/>
+        </createIndex>
+        <createIndex tableName="generated_contents" indexName="idx_generated_content_job">
+            <column name="job_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="4" author="applygenie">
+        <comment>Cascade deletes from parent user/resume/job rows to dependents, so account and resource deletion isn't blocked by foreign key violations</comment>
+
+        <dropForeignKeyConstraint baseTableName="resumes" constraintName="fk_resumes_user"/>
+        <addForeignKeyConstraint baseTableName="resumes" baseColumnNames="user_id"
+                                  constraintName="fk_resumes_user"
+                                  referencedTableName="users" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="job_descriptions" constraintName="fk_jobs_user"/>
+        <addForeignKeyConstraint baseTableName="job_descriptions" baseColumnNames="user_id"
+                                  constraintName="fk_jobs_user"
+                                  referencedTableName="users" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="refresh_tokens" constraintName="fk_refresh_tokens_user"/>
+        <addForeignKeyConstraint baseTableName="refresh_tokens" baseColumnNames="user_id"
+                                  constraintName="fk_refresh_tokens_user"
+                                  referencedTableName="users" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="generated_contents" constraintName="fk_generated_contents_user"/>
+        <addForeignKeyConstraint baseTableName="generated_contents" baseColumnNames="user_id"
+                                  constraintName="fk_generated_contents_user"
+                                  referencedTableName="users" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="generated_contents" constraintName="fk_generated_contents_resume"/>
+        <addForeignKeyConstraint baseTableName="generated_contents" baseColumnNames="resume_id"
+                                  constraintName="fk_generated_contents_resume"
+                                  referencedTableName="resumes" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="generated_contents" constraintName="fk_generated_contents_job"/>
+        <addForeignKeyConstraint baseTableName="generated_contents" baseColumnNames="job_id"
+                                  constraintName="fk_generated_contents_job"
+                                  referencedTableName="job_descriptions" referencedColumnNames="id"
+                                  onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="5" author="applygenie">
+        <comment>Defense-in-depth CHECK constraints for enum-backed columns, matching the Java enums</comment>
+
+        <sql>ALTER TABLE users ADD CONSTRAINT chk_users_role CHECK (role IN ('USER', 'ADMIN'));</sql>
+        <sql>ALTER TABLE users ADD CONSTRAINT chk_users_subscription_tier CHECK (subscription_tier IN ('FREE', 'PRO', 'ENTERPRISE'));</sql>
+        <sql>ALTER TABLE generated_contents ADD CONSTRAINT chk_generated_contents_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED'));</sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -7,6 +7,7 @@ public record JobDescriptionResponse(
         String title,
         String description,
         String company,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }
