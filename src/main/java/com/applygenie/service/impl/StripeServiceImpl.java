@@ -1,5 +1,7 @@
 package com.applygenie.service.impl;
 
+import com.applygenie.config.properties.AppProperties;
+import com.applygenie.config.properties.StripeProperties;
 import com.applygenie.entity.SubscriptionTier;
 import com.applygenie.entity.User;
 import com.applygenie.repository.UserRepository;
@@ -15,10 +17,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +25,17 @@ import java.util.Optional;
 public class StripeServiceImpl implements StripeService {
 
     private final UserRepository userRepository;
-
-    @Value("${stripe.api.key}")
-    private String stripeApiKey;
-
-    @Value("${stripe.webhook.secret}")
-    private String webhookSecret;
-
-    @Value("${app.frontend.url:http://localhost:5173}")
-    private String frontendUrl;
+    private final StripeProperties stripeProperties;
+    private final AppProperties appProperties;
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = stripeApiKey;
+        Stripe.apiKey = stripeProperties.api().key();
     }
 
     @Override
     public Session createCheckoutSession(User user, String priceId) throws StripeException {
+        String frontendUrl = appProperties.frontend().url();
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                 .setSuccessUrl(frontendUrl + "/dashboard?status=success")
@@ -60,7 +53,7 @@ public class StripeServiceImpl implements StripeService {
 
     @Override
     public void handleWebhook(String payload, String sigHeader) throws Exception {
-        Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
+        Event event = Webhook.constructEvent(payload, sigHeader, stripeProperties.webhook().secret());
 
         log.info("Received Stripe Webhook event: {}", event.getType());
 

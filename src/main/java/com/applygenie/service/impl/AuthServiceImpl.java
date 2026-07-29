@@ -33,13 +33,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new ResourceAlreadyExistsException("Email is already in use!");
         }
 
         User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
                 .build();
 
@@ -49,32 +49,24 @@ public class AuthServiceImpl implements AuthService {
         String jwt = jwtUtils.generateToken(userDetails);
         com.applygenie.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return AuthResponse.builder()
-                .token(jwt)
-                .refreshToken(refreshToken.getToken())
-                .email(user.getEmail())
-                .build();
+        return AuthResponse.of(jwt, refreshToken.getToken(), user.getEmail());
     }
 
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String jwt = jwtUtils.generateToken(userDetails);
-        
+
         // Ensure only one active refresh token exists per user (or rotate if existing)
         refreshTokenService.deleteByUserId(userDetails.getUser().getId());
         com.applygenie.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
 
-        return AuthResponse.builder()
-                .token(jwt)
-                .refreshToken(refreshToken.getToken())
-                .email(userDetails.getUsername())
-                .build();
+        return AuthResponse.of(jwt, refreshToken.getToken(), userDetails.getUsername());
     }
 }

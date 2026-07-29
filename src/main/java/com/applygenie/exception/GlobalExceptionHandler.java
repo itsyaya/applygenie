@@ -1,6 +1,9 @@
 package com.applygenie.exception;
 
 import com.applygenie.dto.response.ErrorResponse;
+import com.applygenie.exception.custom.ResourceAlreadyExistsException;
+import com.applygenie.exception.custom.ResourceNotFoundException;
+import com.applygenie.exception.custom.UnauthorizedAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -24,49 +27,46 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message("Validation failed")
-                .timestamp(LocalDateTime.now())
-                .errors(errors)
-                .build();
+        return errorResponse(HttpStatus.BAD_REQUEST, "Validation failed", errors);
+    }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleResourceAlreadyExists(ResourceAlreadyExistsException ex) {
+        return errorResponse(HttpStatus.CONFLICT, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAccess(UnauthorizedAccessException ex) {
+        return errorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), null);
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
-        HttpStatus status = ex.getMessage().contains("limit reached") ? HttpStatus.TOO_MANY_REQUESTS : HttpStatus.CONFLICT;
-        
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return new ResponseEntity<>(errorResponse, status);
+        HttpStatus status = ex.getMessage() != null && ex.getMessage().contains("limit reached")
+                ? HttpStatus.TOO_MANY_REQUESTS
+                : HttpStatus.CONFLICT;
+        return errorResponse(status, ex.getMessage(), null);
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeExceptions(RuntimeException ex) {
         io.sentry.Sentry.captureException(ex);
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
         io.sentry.Sentry.captureException(ex);
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message("An unexpected error occurred")
-                .timestamp(LocalDateTime.now())
-                .build();
+        return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", null);
+    }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    private ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message, Map<String, String> errors) {
+        ErrorResponse body = new ErrorResponse(false, message, LocalDateTime.now(), errors);
+        return new ResponseEntity<>(body, status);
     }
 }

@@ -1,15 +1,14 @@
 package com.applygenie.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 
-@Data
-public class JobDescriptionRequest {
-    @NotBlank(message = "Title is required")
-    private String title;
+public record JobDescriptionRequest(
+        @NotBlank(message = "Title is required")
+        String title,
 
-    @NotBlank(message = "Description is required")
-    private String description;
+        @NotBlank(message = "Description is required")
+        String description,
 
-    private String company;
+        String company
+) {
 }

@@ -1,11 +1,11 @@
 package com.applygenie.service.impl;
 
+import com.applygenie.config.properties.JwtProperties;
 import com.applygenie.entity.RefreshToken;
 import com.applygenie.repository.RefreshTokenRepository;
 import com.applygenie.repository.UserRepository;
 import com.applygenie.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +17,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
-    @Value("${app.jwt.refresh-expiration-ms}")
-    private Long refreshTokenDurationMs;
-
+    private final JwtProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
@@ -35,7 +34,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         refreshToken.setUser(userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId)));
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setExpiryDate(Instant.now().plusMillis(jwtProperties.refreshExpirationMs()));
         refreshToken.setToken(UUID.randomUUID().toString());
 
         refreshToken = refreshTokenRepository.save(refreshToken);
@@ -43,6 +42,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
+    @Transactional
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
@@ -55,7 +55,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public RefreshToken rotateRefreshToken(RefreshToken token) {
         token.setToken(UUID.randomUUID().toString());
-        token.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        token.setExpiryDate(Instant.now().plusMillis(jwtProperties.refreshExpirationMs()));
         return refreshTokenRepository.save(token);
     }
 
