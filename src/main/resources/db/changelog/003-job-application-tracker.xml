@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="6" author="applygenie">
+        <comment>Rename job_descriptions to job_applications now that it's the full application tracker entity.
+            Pre-existing idx_job_user/idx_job_created indexes are left as-is: idx_job_user backs the
+            fk_jobs_user foreign key in H2 and cannot be dropped independently of it.</comment>
+        <renameTable oldTableName="job_descriptions" newTableName="job_applications"/>
+    </changeSet>
+
+    <changeSet id="7" author="applygenie">
+        <comment>Add job application tracker fields: location/salary/recruiter, status/priority, linked resume, key dates, archive flag</comment>
+
+        <addColumn tableName="job_applications">
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="salary" type="VARCHAR(255)"/>
+            <column name="recruiter" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(50)" defaultValue="WISHLIST">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="VARCHAR(50)" defaultValue="MEDIUM">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resume_id" type="BIGINT"/>
+            <column name="application_date" type="DATE"/>
+            <column name="interview_date" type="DATE"/>
+            <column name="follow_up_date" type="DATE"/>
+            <column name="offer_date" type="DATE"/>
+            <column name="rejection_date" type="DATE"/>
+            <column name="archived" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="job_applications" baseColumnNames="resume_id"
+                                  constraintName="fk_job_applications_resume"
+                                  referencedTableName="resumes" referencedColumnNames="id"
+                                  onDelete="SET NULL"/>
+
+        <sql>ALTER TABLE job_applications ADD CONSTRAINT chk_job_applications_status CHECK (status IN
+            ('WISHLIST','APPLIED','HR_SCREEN','ASSESSMENT','TECHNICAL_INTERVIEW','FINAL_INTERVIEW','OFFER','ACCEPTED','REJECTED','WITHDRAWN'));</sql>
+        <sql>ALTER TABLE job_applications ADD CONSTRAINT chk_job_applications_priority CHECK (priority IN ('LOW','MEDIUM','HIGH'));</sql>
+
+        <createIndex tableName="job_applications" indexName="idx_job_app_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="job_applications" indexName="idx_job_app_archived">
+            <column name="archived"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="8" author="applygenie">
+        <comment>Tags: user-scoped labels applicable to job applications</comment>
+
+        <createTable tableName="tags">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_tags_user" referencedTableName="users"
+                             referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(32)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="tags" columnNames="user_id, name" constraintName="uk_tag_user_name"/>
+        <createIndex tableName="tags" indexName="idx_tag_user">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createTable tableName="job_application_tags">
+            <column name="job_application_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_job_app_tags_application"
+                             referencedTableName="job_applications" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="tag_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_job_app_tags_tag"
+                             referencedTableName="tags" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="job_application_tags" columnNames="job_application_id, tag_id"
+                        constraintName="pk_job_application_tags"/>
+    </changeSet>
+
+    <changeSet id="9" author="applygenie">
+        <comment>Notes: free-text notes attached to a job application</comment>
+
+        <createTable tableName="notes">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="job_application_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_notes_job_application"
+                             referencedTableName="job_applications" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="notes" indexName="idx_note_job_app">
+            <column name="job_application_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -40,6 +40,28 @@ public class User {
     @Builder.Default
     private boolean subscriptionActive = false;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    private String location;
+
+    private String linkedinUrl;
+
+    private String githubUrl;
+
+    private String portfolioUrl;
+
+    private String profileImageKey;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "preferred_resume_id")
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.SET_NULL)
+    private Resume preferredResume;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

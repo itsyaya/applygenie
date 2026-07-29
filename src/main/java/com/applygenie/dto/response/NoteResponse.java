@@ -2,11 +2,9 @@ package com.applygenie.dto.response;
 
 import java.time.LocalDateTime;
 
-public record JobDescriptionResponse(
+public record NoteResponse(
         Long id,
-        String title,
-        String description,
-        String company,
+        String content,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
