@@ -41,10 +41,17 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public String matchResumeWithJob(Long resumeId, Long jobId) {
+        User currentUser = getCurrentUser();
+
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new RuntimeException("Resume not found"));
+                .orElseThrow(() -> new com.applygenie.exception.custom.ResourceNotFoundException("Resume not found"));
         JobDescription job = jobDescriptionRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new com.applygenie.exception.custom.ResourceNotFoundException("Job not found"));
+
+        if (!resume.getUser().getId().equals(currentUser.getId()) ||
+                !job.getUser().getId().equals(currentUser.getId())) {
+            throw new com.applygenie.exception.custom.UnauthorizedAccessException("Unauthorized to access these resources");
+        }
 
         return aiService.analyzeResume(resume.getParsedText(), job.getDescription());
     }

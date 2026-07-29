@@ -53,8 +53,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logoutUser(@RequestParam Long userId) {
-        refreshTokenService.deleteByUserId(userId);
+    public ResponseEntity<ApiResponse<Void>> logoutUser(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.applygenie.security.CustomUserDetails userDetails) {
+        refreshTokenService.deleteByUserId(userDetails.getUser().getId());
         return ResponseEntity.ok(new ApiResponse<>(true, "Log out successful", null));
     }
 }

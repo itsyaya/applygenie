@@ -19,6 +19,15 @@
             <column name="role" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
+            <column name="stripe_customer_id" type="VARCHAR(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="subscription_tier" type="VARCHAR(50)" defaultValue="FREE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subscription_active" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
         </createTable>
 
@@ -29,7 +38,7 @@
             <column name="file_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="file_path" type="VARCHAR(255)">
+            <column name="s3key" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="parsed_text" type="TEXT"/>
@@ -70,9 +79,44 @@
                 <constraints nullable="false" unique="true" foreignKeyName="fk_refresh_tokens_user" referencedTableName="users" referencedColumnNames="id"/>
             </column>
         </createTable>
-        
+
+        <createTable tableName="generated_contents">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_generated_contents_user" referencedTableName="users" referencedColumnNames="id"/>
+            </column>
+            <column name="resume_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_generated_contents_resume" referencedTableName="resumes" referencedColumnNames="id"/>
+            </column>
+            <column name="job_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_generated_contents_job" referencedTableName="job_descriptions" referencedColumnNames="id"/>
+            </column>
+            <column name="cover_letter" type="TEXT"/>
+            <column name="cv_summary" type="TEXT"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
         <createIndex tableName="users" indexName="idx_user_email">
             <column name="email"/>
+        </createIndex>
+
+        <createIndex tableName="resumes" indexName="idx_resume_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="resumes" indexName="idx_resume_created">
+            <column name="created_at"/>
+        </createIndex>
+
+        <createIndex tableName="job_descriptions" indexName="idx_job_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="job_descriptions" indexName="idx_job_created">
+            <column name="created_at"/>
         </createIndex>
     </changeSet>
 
