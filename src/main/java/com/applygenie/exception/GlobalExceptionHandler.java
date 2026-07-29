@@ -1,6 +1,9 @@
 package com.applygenie.exception;
 
 import com.applygenie.dto.response.ErrorResponse;
+import com.applygenie.exception.custom.InvalidCredentialsException;
+import com.applygenie.exception.custom.InvalidFileException;
+import com.applygenie.exception.custom.InvalidTokenException;
 import com.applygenie.exception.custom.ResourceAlreadyExistsException;
 import com.applygenie.exception.custom.ResourceNotFoundException;
 import com.applygenie.exception.custom.UnauthorizedAccessException;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@lombok.extern.slf4j.Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,6 +50,21 @@ public class GlobalExceptionHandler {
         return errorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), null);
     }
 
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFile(InvalidFileException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         return errorResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password", null);
@@ -61,12 +80,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeExceptions(RuntimeException ex) {
+        log.error("Unhandled RuntimeException", ex);
         io.sentry.Sentry.captureException(ex);
         return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        log.error("Unhandled exception", ex);
         io.sentry.Sentry.captureException(ex);
         return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", null);
     }

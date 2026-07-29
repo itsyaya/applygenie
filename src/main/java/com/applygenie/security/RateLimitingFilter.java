@@ -16,7 +16,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final Set<String> TIGHTLY_LIMITED_PATHS = Set.of("/auth/login", "/auth/register");
+    private static final Set<String> TIGHTLY_LIMITED_PATHS = Set.of(
+            "/auth/login", "/auth/register", "/auth/forgot-password", "/auth/reset-password");
 
     private final RateLimitingService rateLimitingService;
 

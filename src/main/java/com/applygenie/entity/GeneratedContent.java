@@ -40,7 +40,7 @@ public class GeneratedContent {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private JobDescription jobDescription;
+    private JobApplication jobApplication;
 
     @Column(columnDefinition = "TEXT")
     private String coverLetter;

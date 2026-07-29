@@ -7,5 +7,8 @@
 
     <include file="db/changelog/initial-schema.xml"/>
     <include file="db/changelog/002-schema-hardening.xml"/>
+    <include file="db/changelog/003-job-application-tracker.xml"/>
+    <include file="db/changelog/004-user-profile.xml"/>
+    <include file="db/changelog/005-auth-tokens.xml"/>
 
 </databaseChangeLog>

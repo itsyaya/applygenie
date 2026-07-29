@@ -9,6 +9,6 @@ import org.mapstruct.Mapping;
 public interface GeneratedContentMapper {
 
     @Mapping(target = "resumeId", source = "resume.id")
-    @Mapping(target = "jobId", source = "jobDescription.id")
+    @Mapping(target = "jobId", source = "jobApplication.id")
     GeneratedContentResponse toResponse(GeneratedContent entity);
 }
