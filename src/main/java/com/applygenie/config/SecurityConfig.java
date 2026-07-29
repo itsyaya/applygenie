@@ -2,6 +2,8 @@ package com.applygenie.config;
 
 import com.applygenie.config.properties.AppProperties;
 import com.applygenie.security.JwtAuthFilter;
+import com.applygenie.security.RestAccessDeniedHandler;
+import com.applygenie.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +31,8 @@ public class SecurityConfig {
     private final com.applygenie.security.RateLimitingFilter rateLimitingFilter;
     private final com.applygenie.security.TracingFilter tracingFilter;
     private final AppProperties appProperties;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -49,24 +53,31 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        String frontendUrl = appProperties.frontend().url();
+        String frontendWsUrl = frontendUrl.replaceFirst("^http", "ws");
+
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login", "/auth/refresh-token", "/",
-                                "/h2-console/**", "/actuator/**", "/api/payments/webhook")
+                                "/h2-console/**", "/actuator/health", "/api/payments/webhook")
                         .permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "default-src 'self'; " +
-                                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; " +
-                                        "style-src 'self' 'unsafe-inline' http://localhost:5173 https://fonts.googleapis.com; "
+                                        "script-src 'self' 'unsafe-inline' 'unsafe-eval' " + frontendUrl + "; " +
+                                        "style-src 'self' 'unsafe-inline' " + frontendUrl + " https://fonts.googleapis.com; "
                                         +
                                         "font-src 'self' https://fonts.gstatic.com; " +
                                         "img-src 'self' data: https://stripe.com; " +
-                                        "connect-src 'self' http://localhost:5173 ws://localhost:5173 http://localhost:8080;"))
+                                        "connect-src 'self' " + frontendUrl + " " + frontendWsUrl + ";"))
                         .xssProtection(xss -> xss.headerValue(
                                 org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)));
