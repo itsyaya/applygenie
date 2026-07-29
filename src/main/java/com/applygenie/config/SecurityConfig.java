@@ -63,7 +63,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
                         .accessDeniedHandler(restAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh-token", "/",
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh-token",
+                                "/auth/forgot-password", "/auth/reset-password", "/auth/verify-email", "/",
                                 "/h2-console/**", "/actuator/health", "/api/payments/webhook")
                         .permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
