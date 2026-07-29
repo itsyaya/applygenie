@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="10" author="applygenie">
+        <comment>User profile fields: bio, location, social/portfolio links, profile image, preferred resume</comment>
+
+        <addColumn tableName="users">
+            <column name="bio" type="TEXT"/>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="linkedin_url" type="VARCHAR(255)"/>
+            <column name="github_url" type="VARCHAR(255)"/>
+            <column name="portfolio_url" type="VARCHAR(255)"/>
+            <column name="profile_image_key" type="VARCHAR(255)"/>
+            <column name="preferred_resume_id" type="BIGINT"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="preferred_resume_id"
+                                  constraintName="fk_users_preferred_resume"
+                                  referencedTableName="resumes" referencedColumnNames="id"
+                                  onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>
