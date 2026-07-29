@@ -6,11 +6,14 @@ import com.applygenie.dto.request.TokenRefreshRequest;
 import com.applygenie.dto.response.ApiResponse;
 import com.applygenie.dto.response.AuthResponse;
 import com.applygenie.dto.response.TokenRefreshResponse;
+import com.applygenie.entity.RefreshToken;
 import com.applygenie.exception.custom.ResourceNotFoundException;
 import com.applygenie.security.CustomUserDetails;
 import com.applygenie.security.JwtUtils;
+import com.applygenie.security.TokenBlacklistService;
 import com.applygenie.service.AuthService;
 import com.applygenie.service.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,7 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
@@ -43,22 +47,24 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(
             @Valid @RequestBody TokenRefreshRequest request) {
-        String requestRefreshToken = request.refreshToken();
-
-        return refreshTokenService.findByToken(requestRefreshToken)
+        RefreshToken validToken = refreshTokenService.findByToken(request.refreshToken())
                 .map(refreshTokenService::verifyExpiration)
-                .map(com.applygenie.entity.RefreshToken::getUser)
-                .map(user -> {
-                    String token = jwtUtils.generateToken(new CustomUserDetails(user));
-                    return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully",
-                            TokenRefreshResponse.of(token, requestRefreshToken)));
-                })
                 .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found or invalid"));
+
+        RefreshToken rotated = refreshTokenService.rotateRefreshToken(validToken);
+        String accessToken = jwtUtils.generateToken(new CustomUserDetails(rotated.getUser()));
+
+        return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully",
+                TokenRefreshResponse.of(accessToken, rotated.getToken())));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logoutUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<Void>> logoutUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest request) {
         refreshTokenService.deleteByUserId(userDetails.getUser().getId());
+        jwtUtils.resolveToken(request).ifPresent(token ->
+                tokenBlacklistService.blacklist(jwtUtils.getJwtIdFromToken(token), jwtUtils.getRemainingValidity(token)));
         return ResponseEntity.ok(ApiResponse.success("Log out successful"));
     }
 }

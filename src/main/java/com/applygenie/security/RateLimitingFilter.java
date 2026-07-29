@@ -10,10 +10,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class RateLimitingFilter extends OncePerRequestFilter {
+
+    private static final Set<String> TIGHTLY_LIMITED_PATHS = Set.of("/auth/login", "/auth/register");
 
     private final RateLimitingService rateLimitingService;
 
@@ -26,7 +29,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String clientIp = (xForwardedFor != null && !xForwardedFor.isBlank()) ? xForwardedFor.split(",")[0].trim()
                 : request.getRemoteAddr();
 
-        if (rateLimitingService.resolveBucket(clientIp).tryConsume(1)) {
+        boolean isAuthEndpoint = TIGHTLY_LIMITED_PATHS.contains(request.getRequestURI());
+        var bucket = isAuthEndpoint ? rateLimitingService.resolveAuthBucket(clientIp)
+                : rateLimitingService.resolveBucket(clientIp);
+
+        if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
         } else {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());

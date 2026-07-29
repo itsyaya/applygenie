@@ -5,12 +5,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -20,10 +25,12 @@ public class JwtUtils {
     private final JwtProperties jwtProperties;
 
     public String generateToken(UserDetails userDetails) {
+        Date now = new Date();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime() + jwtProperties.accessExpirationMs()))
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + jwtProperties.accessExpirationMs()))
                 .signWith(key())
                 .compact();
     }
@@ -36,9 +43,26 @@ public class JwtUtils {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String getJwtIdFromToken(String token) {
+        return extractClaim(token, Claims::getId);
+    }
+
+    public Duration getRemainingValidity(String token) {
+        Date expiration = extractClaim(token, Claims::getExpiration);
+        return Duration.between(new Date().toInstant(), expiration.toInstant());
+    }
+
     public boolean validateJwtToken(String authToken, UserDetails userDetails) {
         final String username = getUserNameFromJwtToken(authToken);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(authToken));
+    }
+
+    public Optional<String> resolveToken(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return Optional.of(headerAuth.substring(7));
+        }
+        return Optional.empty();
     }
 
     private boolean isTokenExpired(String token) {

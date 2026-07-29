@@ -12,6 +12,11 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 app:
   jwt:
     secret: ${JWT_SECRET:C8A9E3FA4B7CDE1219F58BE46A8F12D3A9C8D6B71E42B1A89BFFC32D9A9B2CF0}
@@ -33,6 +38,9 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    redis:
+      enabled: false
 
 resilience4j:
   retry:
