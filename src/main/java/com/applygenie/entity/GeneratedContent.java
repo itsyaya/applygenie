@@ -31,10 +31,10 @@ public class GeneratedContent {
     @JoinColumn(name = "job_id", nullable = false)
     private JobDescription jobDescription;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String coverLetter;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String cvSummary;
 
     @Column(nullable = false)
